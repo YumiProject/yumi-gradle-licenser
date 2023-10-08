@@ -1,0 +1,20 @@
+/*
+ * Copyright 2023 Yumi Project
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+package dev.yumi.gradle.licenser.api.rule.token;
+
+/**
+ * Represents a variable token in a header rule definition.
+ *
+ * @param variable the variable name
+ * @author LambdAurora
+ * @version 1.0.0
+ * @since 1.0.0
+ */
+public record VarToken(String variable) implements RuleToken {
+}

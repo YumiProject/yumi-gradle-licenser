@@ -1,0 +1,7 @@
+Sample header ${CREATION_YEAR}.
+
+File: ${FILE_NAME}
+
+#optional
+Optional sample line.
+#end

@@ -1,0 +1,18 @@
+plugins {
+	id 'dev.yumi.gradle.licenser'
+	id 'java'
+	id 'org.jetbrains.kotlin.jvm' version '1.8.0'
+}
+
+sourceSets {
+	custom {
+		java {
+			srcDir "src/custom/java"
+		}
+	}
+}
+
+license {
+	rule rootProject.file("HEADER")
+	exclude sourceSets.custom
+}
