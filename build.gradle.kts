@@ -1,5 +1,5 @@
 plugins {
-	//id("dev.yumi.gradle.licenser").version("1.0.+")
+	id("dev.yumi.gradle.licenser").version("1.0.+")
 	id("com.gradle.plugin-publish").version("1.2.0")
 	id("maven-publish")
 	id("signing")
@@ -68,10 +68,10 @@ tasks.withType<Javadoc>().configureEach {
 	}
 }
 
-//license {
-//	rule(file("codeformat/HEADER"))
-//	exclude("src/**")
-//}
+license {
+	rule(file("codeformat/HEADER"))
+	exclude("src/**")
+}
 
 signing {
 	val signingKeyId: String? by project
