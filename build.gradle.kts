@@ -68,6 +68,12 @@ tasks.withType<Javadoc>().configureEach {
 	}
 }
 
+tasks.jar {
+	from("LICENSE") {
+		rename { "${it}_${base.archivesName.get()}" }
+	}
+}
+
 license {
 	rule(file("codeformat/HEADER"))
 	exclude("src/**")
