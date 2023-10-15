@@ -1,5 +1,9 @@
 # Yumi Licenser Gradle Plugin
 
+![Java 17](https://img.shields.io/badge/language-Java%2017-9B599A.svg?style=flat-square)
+[![GitHub license](https://img.shields.io/github/license/YumiProject/yumi-gradle-licenser?style=flat-square)](https://raw.githubusercontent.com/YumiProject/yumi-gradle-licenser/main/LICENSE)
+![Version](https://img.shields.io/github/v/tag/YumiProject/yumi-gradle-licenser?label=version&style=flat-square)
+
 A license header manager plugin for Gradle.
 
 The goal of this plugin is to ensure that the source files contains a predefined license header determined by some rules,
