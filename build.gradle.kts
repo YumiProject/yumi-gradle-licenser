@@ -17,7 +17,6 @@ repositories {
 val functionalTest: SourceSet by sourceSets.creating
 
 dependencies {
-	implementation("junit:junit:4.13.1")
 	compileOnly(libs.jetbrains.annotations)
 	api(libs.jgit)
 	// Use JUnit Jupiter for testing.
@@ -76,7 +75,7 @@ tasks.jar {
 
 license {
 	rule(file("codeformat/HEADER"))
-	exclude("src/**")
+	exclude("scenarios/**")
 }
 
 signing {

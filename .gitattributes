@@ -16,4 +16,4 @@
 *.war           binary
 
 # Custom
-src/functionalTest/resources/src/main/java/test/TestClassCrlf*.java  text eol=crlf
+src/functionalTest/resources/scenarios/base_java/src/main/java/test/TestClassCrlf*.java  text eol=crlf

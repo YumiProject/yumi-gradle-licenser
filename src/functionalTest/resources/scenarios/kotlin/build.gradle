@@ -1,0 +1,8 @@
+plugins {
+	id 'dev.yumi.gradle.licenser'
+	id 'org.jetbrains.kotlin.jvm' version '1.8.0'
+}
+
+license {
+	rule rootProject.file("HEADER")
+}
