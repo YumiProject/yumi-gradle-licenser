@@ -28,11 +28,20 @@ public class KotlinFunctionalTest {
 	File projectDir;
 
 	@Test
-	public void canRunTask() throws IOException {
-		var runner = new ScenarioRunner("kotlin", projectDir.toPath());
+	public void canRunBase() throws IOException {
+		this.run("kotlin/base", "src/main/kotlin/test/TestKotlinFile.kt");
+	}
+
+	@Test
+	public void canRunMultiplatform() throws IOException {
+		this.run("kotlin/multiplatform", "src/commonMain/kotlin/test/TestKotlinFile.kt");
+	}
+
+	private void run(String name, String path) throws IOException {
+		var runner = new ScenarioRunner(name, projectDir.toPath());
 		runner.setup();
 
-		Path testKotlinPath = runner.path("src/main/kotlin/test/TestKotlinFile.kt");
+		Path testKotlinPath = runner.path(path);
 
 		var result = runner.run();
 

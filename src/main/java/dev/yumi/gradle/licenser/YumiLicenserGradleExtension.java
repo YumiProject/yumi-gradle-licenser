@@ -41,7 +41,7 @@ import java.util.Set;
  * Represents the Yumi Licenser Gradle extension to configure the plugin in buildscripts.
  *
  * @author LambdAurora
- * @version 1.0.0
+ * @version 1.1.0
  * @since 1.0.0
  */
 public class YumiLicenserGradleExtension implements PatternFilterable {
@@ -63,7 +63,7 @@ public class YumiLicenserGradleExtension implements PatternFilterable {
 	final TextResourceFactory textResources;
 
 	@PackageScope
-	final List<SourceSet> excludedSourceSets = new ArrayList<>();
+	final List<String> excludedSourceSets = new ArrayList<>();
 
 	@PackageScope
 	final HeaderCommentManager headerCommentManager = new HeaderCommentManager();
@@ -253,22 +253,48 @@ public class YumiLicenserGradleExtension implements PatternFilterable {
 	/**
 	 * Excludes an entire source set.
 	 *
+	 * @param sourceSetName the source set name
+	 * @return {@code this}
+	 * @see #exclude(SourceSet)
+	 * @since 1.1.0
+	 */
+	@Contract("_ -> this")
+	public @NotNull YumiLicenserGradleExtension excludeSourceSet(@NotNull String sourceSetName) {
+		this.excludedSourceSets.add(sourceSetName);
+		return this;
+	}
+
+	/**
+	 * Excludes an entire source set.
+	 *
 	 * @param sourceSet the source set
 	 * @return {@code this}
+	 * @see #excludeSourceSet(String)
 	 */
 	@Contract("_ -> this")
 	public @NotNull YumiLicenserGradleExtension exclude(@NotNull SourceSet sourceSet) {
-		this.excludedSourceSets.add(sourceSet);
-		return this;
+		return this.excludeSourceSet(sourceSet.getName());
+	}
+
+	/**
+	 * {@return {@code true} if the source set is excluded, or {@code false} otherwise}
+	 *
+	 * @param sourceSetName the name of the source set to check
+	 * @see #isSourceSetExcluded(SourceSet)
+	 * @since 1.1.0
+	 */
+	public boolean isSourceSetExcluded(String sourceSetName) {
+		return this.excludedSourceSets.contains(sourceSetName);
 	}
 
 	/**
 	 * {@return {@code true} if the source set is excluded, or {@code false} otherwise}
 	 *
 	 * @param sourceSet the source set to check
+	 * @see #isSourceSetExcluded(String)
 	 */
 	public boolean isSourceSetExcluded(SourceSet sourceSet) {
-		return this.excludedSourceSets.contains(sourceSet);
+		return this.isSourceSetExcluded(sourceSet.getName());
 	}
 
 	/**

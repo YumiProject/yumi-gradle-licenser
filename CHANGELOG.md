@@ -7,6 +7,7 @@
 - Added basic license header syntax.
 - Added license header application and check tasks.
 
-## 1.0.1
+## 1.1.0
 
+- Added missing support for the Kotlin multiplatform plugin ([#1](https://github.com/YumiProject/yumi-gradle-licenser/issues/1)).
 - Improved functional tests.

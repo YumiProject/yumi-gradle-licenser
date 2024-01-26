@@ -15,8 +15,8 @@ import dev.yumi.gradle.licenser.impl.LicenseHeader;
 import dev.yumi.gradle.licenser.impl.ValidationError;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
+import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.logging.Logger;
-import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.TaskAction;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -31,20 +31,23 @@ import java.util.List;
  * Represents a task that checks the validity of license headers in project files.
  *
  * @author LambdAurora
- * @version 1.0.0
+ * @version 1.1.0
  * @since 1.0.0
  */
 @ApiStatus.Internal
-public class CheckLicenseTask extends JavaSourceBasedTask {
+public class CheckLicenseTask extends SourceDirectoryBasedTask {
 	private final LicenseHeader licenseHeader;
 	private final HeaderCommentManager headerCommentManager;
 
 	@Inject
-	public CheckLicenseTask(SourceSet sourceSet, YumiLicenserGradleExtension extension) {
-		super(sourceSet, extension.asPatternFilterable());
+	public CheckLicenseTask(SourceDirectorySet sourceDirectorySet, YumiLicenserGradleExtension extension) {
+		super(sourceDirectorySet, extension.asPatternFilterable());
 		this.licenseHeader = extension.getLicenseHeader();
 		this.headerCommentManager = extension.getHeaderCommentManager();
-		this.setDescription("Checks whether source files in the " + sourceSet.getName() + " source set contain a valid license header.");
+		this.setDescription("Checks whether source files in the "
+				+ sourceDirectorySet.getName()
+				+ " source set contain a valid license header."
+		);
 		this.setGroup("verification");
 
 		if (!this.licenseHeader.isValid()) {

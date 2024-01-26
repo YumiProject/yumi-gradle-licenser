@@ -12,7 +12,7 @@ import dev.yumi.gradle.licenser.api.comment.HeaderComment;
 import dev.yumi.gradle.licenser.api.comment.HeaderCommentManager;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
-import org.gradle.api.tasks.SourceSet;
+import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.tasks.util.PatternFilterable;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -20,19 +20,19 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 /**
- * Represents a task that acts on a given Java project source set.
+ * Represents a task that acts on a given source directory set.
  *
  * @author LambdAurora
- * @version 1.0.0
+ * @version 1.1.0
  * @since 1.0.0
  */
 @ApiStatus.Internal
-public abstract class JavaSourceBasedTask extends DefaultTask {
-	protected final SourceSet sourceSet;
+public abstract class SourceDirectoryBasedTask extends DefaultTask {
+	protected final SourceDirectorySet sourceDirectorySet;
 	protected final PatternFilterable patternFilterable;
 
-	protected JavaSourceBasedTask(SourceSet sourceSet, PatternFilterable patternFilterable) {
-		this.sourceSet = sourceSet;
+	protected SourceDirectoryBasedTask(SourceDirectorySet sourceDirectorySet, PatternFilterable patternFilterable) {
+		this.sourceDirectorySet = sourceDirectorySet;
 		this.patternFilterable = patternFilterable;
 	}
 
@@ -43,8 +43,7 @@ public abstract class JavaSourceBasedTask extends DefaultTask {
 	 * @param consumer the action to execute on a given file
 	 */
 	void execute(HeaderCommentManager headerCommentManager, SourceConsumer consumer) {
-		this.sourceSet.getAllSource()
-				.matching(this.patternFilterable)
+		this.sourceDirectorySet.matching(this.patternFilterable)
 				.visit(fileVisitDetails -> {
 					if (fileVisitDetails.isDirectory()) return;
 

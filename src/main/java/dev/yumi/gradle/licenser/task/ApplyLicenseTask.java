@@ -16,8 +16,8 @@ import dev.yumi.gradle.licenser.impl.LicenseHeader;
 import dev.yumi.gradle.licenser.util.Utils;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
+import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.logging.Logger;
-import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.TaskAction;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -34,20 +34,23 @@ import java.util.List;
  * Represents the task that applies license headers to project files.
  *
  * @author LambdAurora
- * @version 1.0.0
+ * @version 1.1.0
  * @since 1.0.0
  */
 @ApiStatus.Internal
-public class ApplyLicenseTask extends JavaSourceBasedTask {
+public class ApplyLicenseTask extends SourceDirectoryBasedTask {
 	private final LicenseHeader licenseHeader;
 	private final HeaderCommentManager headerCommentManager;
 
 	@Inject
-	public ApplyLicenseTask(SourceSet sourceSet, YumiLicenserGradleExtension extension) {
-		super(sourceSet, extension.asPatternFilterable());
+	public ApplyLicenseTask(SourceDirectorySet sourceDirectorySet, YumiLicenserGradleExtension extension) {
+		super(sourceDirectorySet, extension.asPatternFilterable());
 		this.licenseHeader = extension.getLicenseHeader();
 		this.headerCommentManager = extension.getHeaderCommentManager();
-		this.setDescription("Applies the correct license headers to source files in the " + sourceSet.getName() + " source set.");
+		this.setDescription("Applies the correct license headers to source files in the "
+				+ sourceDirectorySet.getName()
+				+ " source set."
+		);
 		this.setGroup("generation");
 
 		if (!this.licenseHeader.isValid()) {

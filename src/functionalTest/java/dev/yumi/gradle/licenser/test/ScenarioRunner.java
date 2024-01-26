@@ -90,24 +90,22 @@ public class ScenarioRunner {
 		this.recurseCopy("src");
 	}
 
-	public BuildResult run() {
+	public BuildResult run(String... args) {
 		// Run the build
 		var runner = GradleRunner.create();
 		runner.forwardOutput();
 		runner.withPluginClasspath();
-		runner.withArguments("applyLicenses", "--stacktrace");
+		runner.withArguments(args);
 		runner.withProjectDir(this.projectDir.toFile());
 		return runner.build();
 	}
 
+	public BuildResult run() {
+		return this.run("applyLicenses", "--stacktrace");
+	}
+
 	public void runCheck() {
-		// Run checkLicenses tasks
-		var runner = GradleRunner.create();
-		runner.forwardOutput();
-		runner.withPluginClasspath();
-		runner.withArguments("checkLicenses", "--stacktrace");
-		runner.withProjectDir(this.projectDir.toFile());
-		runner.build();
+		this.run("checkLicenses", "--stacktrace");
 	}
 
 	interface PathResolver {

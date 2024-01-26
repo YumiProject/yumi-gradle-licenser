@@ -8,6 +8,7 @@
 
 package dev.yumi.gradle.licenser;
 
+import dev.yumi.gradle.licenser.compat.KotlinMultiplatformCompat;
 import dev.yumi.gradle.licenser.task.ApplyLicenseTask;
 import dev.yumi.gradle.licenser.task.CheckLicenseTask;
 import org.gradle.api.Action;
@@ -24,7 +25,7 @@ import org.gradle.language.base.plugins.LifecycleBasePlugin;
  * Represents the Yumi Licenser Gradle plugin.
  *
  * @author LambdAurora
- * @version 1.0.0
+ * @version 1.1.0
  * @since 1.0.0
  */
 public class YumiLicenserGradlePlugin implements Plugin<Project> {
@@ -48,12 +49,24 @@ public class YumiLicenserGradlePlugin implements Plugin<Project> {
 
 			sourceSets.matching(sourceSet -> !ext.isSourceSetExcluded(sourceSet))
 					.all(sourceSet -> {
-						project.getTasks().register(getTaskName("check", sourceSet), CheckLicenseTask.class, sourceSet, ext)
-								.configure(task -> task.onlyIf(t -> !ext.isSourceSetExcluded(sourceSet)));
-						project.getTasks().register(getTaskName("apply", sourceSet), ApplyLicenseTask.class, sourceSet, ext)
-								.configure(task -> task.onlyIf(t -> !ext.isSourceSetExcluded(sourceSet)));
+						project.getTasks().register(
+								getTaskName("check", sourceSet), CheckLicenseTask.class,
+								sourceSet.getAllSource(), ext
+						).configure(task -> task.onlyIf(t -> !ext.isSourceSetExcluded(sourceSet)));
+						project.getTasks().register(
+								getTaskName("apply", sourceSet), ApplyLicenseTask.class,
+								sourceSet.getAllSource(), ext
+						).configure(task -> task.onlyIf(t -> !ext.isSourceSetExcluded(sourceSet)));
 					});
 		});
+
+		if (project.getPlugins().findPlugin("org.jetbrains.kotlin.multiplatform") != null) {
+			try {
+				KotlinMultiplatformCompat.applyTasksForKotlinMultiplatform(project, ext);
+			} catch (Throwable e) {
+				throw new RuntimeException(e);
+			}
+		}
 
 		var globalCheck = this.registerGroupedTask(project, CHECK_TASK_PREFIX, task -> {
 			task.dependsOn(project.getTasks().withType(CheckLicenseTask.class));
