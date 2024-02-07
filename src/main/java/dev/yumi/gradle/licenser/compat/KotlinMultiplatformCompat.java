@@ -12,6 +12,7 @@ import dev.yumi.gradle.licenser.YumiLicenserGradleExtension;
 import dev.yumi.gradle.licenser.YumiLicenserGradlePlugin;
 import dev.yumi.gradle.licenser.task.ApplyLicenseTask;
 import dev.yumi.gradle.licenser.task.CheckLicenseTask;
+import dev.yumi.gradle.licenser.util.Utils;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Project;
 import org.gradle.api.file.SourceDirectorySet;
@@ -25,7 +26,7 @@ import java.lang.invoke.MethodHandles;
  * No direct reference to the Kotlin multiplatform plugin is made due to classloader isolation issues.
  *
  * @author LambdAurora
- * @version 1.1.0
+ * @version 1.1.1
  * @since 1.1.0
  */
 @ApiStatus.Internal
@@ -37,6 +38,8 @@ public final class KotlinMultiplatformCompat {
 	}
 
 	public static void applyTasksForKotlinMultiplatform(Project project, YumiLicenserGradleExtension ext) throws Throwable {
+		Utils.debugLog(project, "Found Kotlin Multiplatform plugin, applying special configuration...");
+
 		var kotlinExt = project.getExtensions().getByName("kotlin"); // Kotlin multiplatform has a Kotlin extension.
 
 		// We get the sourceSets of the Kotlin multiplatform plugin.
@@ -50,7 +53,8 @@ public final class KotlinMultiplatformCompat {
 
 				if (ext.isSourceSetExcluded(name)) return;
 
-				var kotlinSet = (SourceDirectorySet) LOOKUP.unreflect(sourceSet.getClass().getMethod("getKotlin")).invoke(sourceSet);
+				var kotlinSet = (SourceDirectorySet) LOOKUP.unreflect(sourceSet.getClass().getMethod("getKotlin"))
+						.invoke(sourceSet);
 
 				project.getTasks().register(
 						getTaskName("check", name), CheckLicenseTask.class,

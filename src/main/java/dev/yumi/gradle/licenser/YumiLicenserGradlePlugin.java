@@ -25,7 +25,7 @@ import org.gradle.language.base.plugins.LifecycleBasePlugin;
  * Represents the Yumi Licenser Gradle plugin.
  *
  * @author LambdAurora
- * @version 1.1.0
+ * @version 1.1.1
  * @since 1.0.0
  */
 public class YumiLicenserGradlePlugin implements Plugin<Project> {
@@ -60,13 +60,13 @@ public class YumiLicenserGradlePlugin implements Plugin<Project> {
 					});
 		});
 
-		if (project.getPlugins().findPlugin("org.jetbrains.kotlin.multiplatform") != null) {
+		project.getPlugins().withId("org.jetbrains.kotlin.multiplatform", plugin -> {
 			try {
 				KotlinMultiplatformCompat.applyTasksForKotlinMultiplatform(project, ext);
 			} catch (Throwable e) {
 				throw new RuntimeException(e);
 			}
-		}
+		});
 
 		var globalCheck = this.registerGroupedTask(project, CHECK_TASK_PREFIX, task -> {
 			task.dependsOn(project.getTasks().withType(CheckLicenseTask.class));

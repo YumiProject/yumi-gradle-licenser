@@ -9,6 +9,7 @@
 package dev.yumi.gradle.licenser.util;
 
 import dev.yumi.gradle.licenser.YumiLicenserGradleExtension;
+import dev.yumi.gradle.licenser.YumiLicenserGradlePlugin;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 import org.jetbrains.annotations.ApiStatus;
@@ -31,13 +32,26 @@ import java.util.function.Predicate;
  * Provides various utilities.
  *
  * @author LambdAurora
- * @version 1.0.0
+ * @version 1.1.1
  * @since 1.0.0
  */
 @ApiStatus.Internal
 public final class Utils {
 	private Utils() {
 		throw new UnsupportedOperationException("Utils only contains static definitions.");
+	}
+
+	/**
+	 * Logs a message if the plugin is in debug mode.
+	 *
+	 * @param project the project
+	 * @param message the message to log
+	 * @param params the parameters to replace in the message
+	 */
+	public static void debugLog(Project project, String message, Object... params) {
+		if (YumiLicenserGradlePlugin.DEBUG_MODE) {
+			project.getLogger().lifecycle("[" + project.getPath() + "][Yumi Gradle Licenser] " + message, params);
+		}
 	}
 
 	/**
