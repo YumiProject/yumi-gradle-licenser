@@ -34,7 +34,7 @@ import java.util.List;
  * Represents the task that applies license headers to project files.
  *
  * @author LambdAurora
- * @version 1.1.0
+ * @version 1.1.2
  * @since 1.0.0
  */
 @ApiStatus.Internal
@@ -44,7 +44,7 @@ public class ApplyLicenseTask extends SourceDirectoryBasedTask {
 
 	@Inject
 	public ApplyLicenseTask(SourceDirectorySet sourceDirectorySet, YumiLicenserGradleExtension extension) {
-		super(sourceDirectorySet, extension.asPatternFilterable());
+		super(sourceDirectorySet, extension.asPatternFilterable(), extension.getExcludeBuildDirectory().get());
 		this.licenseHeader = extension.getLicenseHeader();
 		this.headerCommentManager = extension.getHeaderCommentManager();
 		this.setDescription("Applies the correct license headers to source files in the "

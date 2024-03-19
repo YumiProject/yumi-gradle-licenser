@@ -1,0 +1,12 @@
+plugins {
+	id 'dev.yumi.gradle.licenser'
+	id 'java'
+}
+
+sourceSets.main.java {
+	srcDirs = srcDirs + layout.buildDirectory.get().asFile
+}
+
+license {
+	rule rootProject.file("HEADER")
+}

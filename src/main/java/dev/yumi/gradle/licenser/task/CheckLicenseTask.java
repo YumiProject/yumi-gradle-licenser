@@ -31,7 +31,7 @@ import java.util.List;
  * Represents a task that checks the validity of license headers in project files.
  *
  * @author LambdAurora
- * @version 1.1.0
+ * @version 1.1.2
  * @since 1.0.0
  */
 @ApiStatus.Internal
@@ -41,7 +41,7 @@ public class CheckLicenseTask extends SourceDirectoryBasedTask {
 
 	@Inject
 	public CheckLicenseTask(SourceDirectorySet sourceDirectorySet, YumiLicenserGradleExtension extension) {
-		super(sourceDirectorySet, extension.asPatternFilterable());
+		super(sourceDirectorySet, extension.asPatternFilterable(), extension.getExcludeBuildDirectory().get());
 		this.licenseHeader = extension.getLicenseHeader();
 		this.headerCommentManager = extension.getHeaderCommentManager();
 		this.setDescription("Checks whether source files in the "

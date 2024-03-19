@@ -41,10 +41,23 @@ import java.util.Set;
  * Represents the Yumi Licenser Gradle extension to configure the plugin in buildscripts.
  *
  * @author LambdAurora
- * @version 1.1.0
+ * @version 1.1.2
  * @since 1.0.0
  */
 public class YumiLicenserGradleExtension implements PatternFilterable {
+	//region Properties
+
+	@PackageScope
+	final LicenseHeader header = new LicenseHeader(new ArrayList<>());
+
+	@PackageScope
+	final HeaderCommentManager headerCommentManager = new HeaderCommentManager();
+
+	@PackageScope
+	final Property<Integer> projectCreationYear;
+
+	//region File selection
+
 	/**
 	 * The filter to apply to the source files.
 	 * <p>
@@ -54,28 +67,29 @@ public class YumiLicenserGradleExtension implements PatternFilterable {
 	public PatternFilterable patternFilterable;
 
 	@PackageScope
-	final LicenseHeader header = new LicenseHeader(new ArrayList<>());
+	final List<String> excludedSourceSets = new ArrayList<>();
 
 	@PackageScope
-	final Property<Integer> projectCreationYear;
+	final Property<Boolean> excludeBuildDirectory;
+
+	//endregion
+	//endregion
+
+	//region Utils
 
 	@PackageScope
 	final TextResourceFactory textResources;
 
-	@PackageScope
-	final List<String> excludedSourceSets = new ArrayList<>();
-
-	@PackageScope
-	final HeaderCommentManager headerCommentManager = new HeaderCommentManager();
+	//endregion
 
 	@Inject
 	public YumiLicenserGradleExtension(final ObjectFactory objects, final Project project) {
-		this.patternFilterable = new PatternSet();
 		this.textResources = project.getResources().getText();
 
 		this.projectCreationYear = objects.property(Integer.class)
 				.convention(project.provider(() -> Utils.getProjectCreationYear(project)));
 
+		this.patternFilterable = new PatternSet();
 		this.exclude(
 				"**/*.txt",
 				"**/*.json",
@@ -103,6 +117,8 @@ public class YumiLicenserGradleExtension implements PatternFilterable {
 				"**/MANIFEST.MF",
 				"**/META-INF/services/**"
 		);
+		this.excludeBuildDirectory = objects.property(Boolean.class)
+				.convention(true);
 	}
 
 	/**
@@ -152,13 +168,23 @@ public class YumiLicenserGradleExtension implements PatternFilterable {
 	/**
 	 * {@return the license header definition of this project}
 	 */
+	@Contract(pure = true)
 	public LicenseHeader getLicenseHeader() {
 		return this.header;
 	}
 
 	/**
+	 * {@return the header comment manager to attach header comment to specific file formats}
+	 */
+	@Contract(pure = true)
+	public @NotNull HeaderCommentManager getHeaderCommentManager() {
+		return this.headerCommentManager;
+	}
+
+	/**
 	 * {@return the project creation year property}
 	 */
+	@Contract(pure = true)
 	public Property<Integer> getProjectCreationYear() {
 		return this.projectCreationYear;
 	}
@@ -166,6 +192,7 @@ public class YumiLicenserGradleExtension implements PatternFilterable {
 	/**
 	 * {@return the delegated filterable pattern}
 	 */
+	@Contract(pure = true)
 	public PatternFilterable asPatternFilterable() {
 		return this.patternFilterable;
 	}
@@ -298,9 +325,12 @@ public class YumiLicenserGradleExtension implements PatternFilterable {
 	}
 
 	/**
-	 * {@return the header comment manager to attach header comment to specific file formats}
+	 * {@return the property which excludes the build directory from checks if set to {@code true}}
+	 *
+	 * @since 1.1.2
 	 */
-	public @NotNull HeaderCommentManager getHeaderCommentManager() {
-		return this.headerCommentManager;
+	@Contract(pure = true)
+	public @NotNull Property<Boolean> getExcludeBuildDirectory() {
+		return this.excludeBuildDirectory;
 	}
 }

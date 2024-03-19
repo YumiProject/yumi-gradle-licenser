@@ -15,3 +15,7 @@
 ## 1.1.1
 
 - Fixed Kotlin multiplatform support when the plugin is applied after the licenser ([#1](https://github.com/YumiProject/yumi-gradle-licenser/issues/1#issuecomment-1931569894)).
+
+## 1.1.2
+
+- Fixed default inclusion of build directories for verification ([#2](https://github.com/YumiProject/yumi-gradle-licenser/issues/2)).

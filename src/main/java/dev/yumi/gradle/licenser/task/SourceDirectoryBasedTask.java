@@ -23,17 +23,19 @@ import java.nio.file.Path;
  * Represents a task that acts on a given source directory set.
  *
  * @author LambdAurora
- * @version 1.1.0
+ * @version 1.1.2
  * @since 1.0.0
  */
 @ApiStatus.Internal
 public abstract class SourceDirectoryBasedTask extends DefaultTask {
 	protected final SourceDirectorySet sourceDirectorySet;
 	protected final PatternFilterable patternFilterable;
+	protected final boolean excludeBuildDirectory;
 
-	protected SourceDirectoryBasedTask(SourceDirectorySet sourceDirectorySet, PatternFilterable patternFilterable) {
+	protected SourceDirectoryBasedTask(SourceDirectorySet sourceDirectorySet, PatternFilterable patternFilterable, boolean excludeBuildDirectory) {
 		this.sourceDirectorySet = sourceDirectorySet;
 		this.patternFilterable = patternFilterable;
+		this.excludeBuildDirectory = excludeBuildDirectory;
 	}
 
 	/**
@@ -43,15 +45,20 @@ public abstract class SourceDirectoryBasedTask extends DefaultTask {
 	 * @param consumer the action to execute on a given file
 	 */
 	void execute(HeaderCommentManager headerCommentManager, SourceConsumer consumer) {
+		Path buildDir = this.getProject().getLayout().getBuildDirectory().get().getAsFile().toPath();
+
 		this.sourceDirectorySet.matching(this.patternFilterable)
 				.visit(fileVisitDetails -> {
 					if (fileVisitDetails.isDirectory()) return;
 
+					Path sourcePath = fileVisitDetails.getFile().toPath();
+
+					// Exclude the build directory unless it's forcefully included.
+					if (this.excludeBuildDirectory && sourcePath.startsWith(buildDir)) return;
+
 					HeaderComment headerComment = headerCommentManager.findHeaderComment(fileVisitDetails);
 
 					if (headerComment != null) {
-						Path sourcePath = fileVisitDetails.getFile().toPath();
-
 						try {
 							consumer.consume(
 									this.getProject(), this.getLogger(), this.getProject().getProjectDir().toPath(),

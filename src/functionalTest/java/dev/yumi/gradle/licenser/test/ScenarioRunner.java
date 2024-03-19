@@ -87,7 +87,11 @@ public class ScenarioRunner {
 
 		Files.copy(ScenarioRunner.class.getResourceAsStream("/HEADER"), this.projectDir.resolve("HEADER"));
 		this.copy("build.gradle");
-		this.recurseCopy("src");
+
+		if (Files.exists(this.getScenarioPath("/src")))
+			this.recurseCopy("src");
+		if (Files.exists(this.getScenarioPath("/build")))
+			this.recurseCopy("build");
 	}
 
 	public BuildResult run(String... args) {

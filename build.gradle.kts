@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "dev.yumi"
-version = "1.1.1"
+version = "1.1.2"
 val javaVersion = 17
 
 repositories {
