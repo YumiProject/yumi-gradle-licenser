@@ -1,12 +1,15 @@
 plugins {
-	id("dev.yumi.gradle.licenser").version("1.1.+")
-	id("com.gradle.plugin-publish").version("1.2.0")
-	id("maven-publish")
-	id("signing")
+	id("dev.yumi.gradle.licenser") version "1.1.+"
+	id("com.gradle.plugin-publish") version "1.2.0"
+
+	kotlin("jvm") version "1.9.24"
+
+	`maven-publish`
+	signing
 }
 
 group = "dev.yumi"
-version = "1.1.2"
+version = "1.2.0"
 val javaVersion = 17
 
 repositories {
@@ -33,7 +36,8 @@ gradlePlugin {
 		create("yumi_gradle_licenser") {
 			id = "dev.yumi.gradle.licenser"
 			displayName = "Yumi Gradle Licenser"
-			description = "A plugin to automatically manage license headers in project files, designed to be flexible to easily support many use cases like having different header kinds for different files."
+			description =
+				"A plugin to automatically manage license headers in project files, designed to be flexible to easily support many use cases like having different header kinds for different files."
 			tags = listOf("licenser", "licensing", "licenses", "license-header")
 			implementationClass = "dev.yumi.gradle.licenser.YumiLicenserGradlePlugin"
 		}
@@ -51,6 +55,11 @@ java {
 	withJavadocJar()
 
 	testResultsDir.set(layout.buildDirectory.dir("junit-xml"))
+}
+
+kotlin {
+	// Require explicit visibility/type definitions for public types, among other things
+	explicitApi()
 }
 
 tasks.withType<JavaCompile>().configureEach {
