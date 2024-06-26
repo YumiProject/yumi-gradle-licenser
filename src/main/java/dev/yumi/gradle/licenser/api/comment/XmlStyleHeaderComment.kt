@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Yumi Project
+ * Copyright 2024 Yumi Project
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -15,7 +15,7 @@ private const val COMMENT_END = "-->"
  * [HeaderComment] implementation for XML-style comments.
  *
  * @author gdude2002
- * @since 1.1.3
+ * @since 1.2.0
  */
 public open class XmlStyleHeaderComment protected constructor() : HeaderComment {
 	override fun readHeaderComment(source: String): HeaderComment.Result {
