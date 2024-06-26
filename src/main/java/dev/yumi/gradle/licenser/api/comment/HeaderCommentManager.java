@@ -29,25 +29,65 @@ public class HeaderCommentManager {
 	public HeaderCommentManager() {
 		this.register(new PatternSet()
 						.include(
+								// C/++
 								"**/*.c",
 								"**/*.cpp",
 								"**/*.cxx",
 								"**/*.h",
 								"**/*.hpp",
 								"**/*.hxx",
+
+								// Java
 								"**/*.java",
+
+								// Kotlin
 								"**/*.kt",
 								"**/*.kts",
-								"**/*.scala"
+
+								// Scala
+								"**/*.scala",
+
+								// Web languages
+								"**/*.dart", // Dart language
+								"**/*.js",   // JavaScript
+								"**/*.jsx",  // JavaScript XML
+								"**/*.ts",   // TypeScript
+								"**/*.tsx",  // TypeScript XML
+
+								// Stylesheets
+								"**/*.css",  // CSS stylesheets
+								"**/*.less", // Less (Extended CSS)
+								"**/*.scss", // SCSS (CSS syntax for SASS)
+								"**/*.styl"  // Stylus (Alternative CSS syntax)
 						),
 				CStyleHeaderComment.INSTANCE
+		);
+
+		this.register(new PatternSet()
+						.include(
+								// Web markup
+								"**/*.htm",
+								"**/*.html",
+								"**/*.xhtml",
+
+								// Extended HTML
+								"**/*.svelte",
+								"**/*.vue",
+
+								// Data formats
+								"**/*.xml",
+
+								// Image formats
+								"**/*.svg"
+						),
+				XmlStyleHeaderComment.INSTANCE
 		);
 	}
 
 	/**
 	 * Registers a header comment implementation for a given file pattern.
 	 *
-	 * @param filePattern the file pattern to match files for which the given header comment implementation applies
+	 * @param filePattern   the file pattern to match files for which the given header comment implementation applies
 	 * @param headerComment the header comment implementation
 	 */
 	public void register(@NotNull PatternSet filePattern, @NotNull HeaderComment headerComment) {
