@@ -1,5 +1,5 @@
 plugins {
-	id("dev.yumi.gradle.licenser") version "1.2.+"
+	id("dev.yumi.gradle.licenser") version "2.0.+"
 	id("com.gradle.plugin-publish") version "1.2.0"
 
 	kotlin("jvm") version "2.0.0"
