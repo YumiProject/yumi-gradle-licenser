@@ -30,7 +30,7 @@ public class ConfigurationCacheFunctionalTest {
 
 	@Test
 	public void canRunTask() throws IOException {
-		var runner = new ScenarioRunner("configuration_cache", projectDir.toPath());
+		var runner = new ScenarioRunner("base_java", projectDir.toPath());
 		runner.setup();
 
 		Path testClassPath = runner.path("src/main/java/test/TestClass.java");

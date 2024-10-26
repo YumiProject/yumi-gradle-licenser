@@ -1,8 +1,0 @@
-plugins {
-	id 'dev.yumi.gradle.licenser'
-	id 'java'
-}
-
-license {
-	rule rootProject.file("HEADER")
-}
