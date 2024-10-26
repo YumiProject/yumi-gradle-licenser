@@ -10,13 +10,17 @@ package dev.yumi.gradle.licenser.task;
 
 import dev.yumi.gradle.licenser.YumiLicenserGradleExtension;
 import dev.yumi.gradle.licenser.api.comment.HeaderComment;
-import dev.yumi.gradle.licenser.api.comment.HeaderCommentManager;
 import dev.yumi.gradle.licenser.impl.LicenseHeader;
 import dev.yumi.gradle.licenser.impl.ValidationError;
+import org.gradle.api.Action;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
+import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.logging.Logger;
+import org.gradle.api.tasks.IgnoreEmptyDirectories;
+import org.gradle.api.tasks.InputFiles;
+import org.gradle.api.tasks.SkipWhenEmpty;
 import org.gradle.api.tasks.TaskAction;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -31,36 +35,66 @@ import java.util.List;
  * Represents a task that checks the validity of license headers in project files.
  *
  * @author LambdAurora
- * @version 1.1.2
+ * @version 2.0.0
  * @since 1.0.0
  */
 @ApiStatus.Internal
-public class CheckLicenseTask extends SourceDirectoryBasedTask {
-	private final LicenseHeader licenseHeader;
-	private final HeaderCommentManager headerCommentManager;
-
+public abstract class CheckLicenseTask extends SourceDirectoryBasedTask {
 	@Inject
-	public CheckLicenseTask(SourceDirectorySet sourceDirectorySet, YumiLicenserGradleExtension extension) {
-		super(sourceDirectorySet, extension.asPatternFilterable(), extension.getExcludeBuildDirectory().get());
-		this.licenseHeader = extension.getLicenseHeader();
-		this.headerCommentManager = extension.getHeaderCommentManager();
-		this.setDescription("Checks whether source files in the "
-				+ sourceDirectorySet.getName()
-				+ " source set contain a valid license header."
-		);
+	public CheckLicenseTask(YumiLicenserGradleExtension extension) {
+		super(extension);
+		this.setDescription("Checks whether source files contain a valid license header.");
 		this.setGroup("verification");
 
-		if (!this.licenseHeader.isValid()) {
+		if (!this.getLicenseHeader().get().isValid()) {
 			this.setEnabled(false);
 		}
 	}
 
 	@TaskAction
 	public void execute() {
-		this.execute(this.headerCommentManager, new Consumer(this.licenseHeader));
+		this.execute(this.getHeaderCommentManager().get(), new Consumer(this.getLicenseHeader().get()));
 	}
 
-	static class Consumer implements SourceConsumer {
+	/**
+	 * Configures a check task with default values.
+	 *
+	 * @param ext the licenser extension
+	 * @param project the project
+	 * @param sourceSet the source set of the files to check
+	 * @param sourceSetName the name of the source set
+	 * @return the configuration action
+	 * @since 2.0.0
+	 */
+	public static Action<? super CheckLicenseTask> configureDefault(
+			YumiLicenserGradleExtension ext,
+			Project project,
+			SourceDirectorySet sourceSet,
+			String sourceSetName
+	) {
+		return task -> {
+			task.setDescription("Checks whether source files in the "
+					+ sourceSet.getName()
+					+ " source set contain a valid license header."
+			);
+			task.getSourceFiles().from(
+					SourceDirectoryBasedTask.extractFromSourceSet(
+							ext,
+							project.getLayout().getBuildDirectory().get().getAsFile().toPath(),
+							sourceSet
+					)
+			);
+			task.getReportFile().fileValue(
+					project.getLayout().getBuildDirectory().get().getAsFile().toPath()
+							.resolve("yumi/licenser/check_report_" + sourceSetName + ".txt")
+							.toFile()
+			);
+			boolean excluded = ext.isSourceSetExcluded(sourceSetName);
+			task.onlyIf(t -> !excluded);
+		};
+	}
+
+	class Consumer implements SourceConsumer {
 		private final LicenseHeader licenseHeader;
 		private final List<FailedCheck> failedChecks = new ArrayList<>();
 		private int total = 0;
@@ -70,16 +104,25 @@ public class CheckLicenseTask extends SourceDirectoryBasedTask {
 		}
 
 		@Override
-		public void consume(Project project, Logger logger, Path rootPath, HeaderComment headerComment, Path path) throws IOException {
+		public void consume(
+				Path rootDir,
+				int projectCreationYear,
+				Path buildPath,
+				Logger logger,
+				Path projectPath,
+				HeaderComment headerComment,
+				Path path
+		) throws IOException {
+			var displayPath = projectPath.relativize(path);
 			var result = headerComment.readHeaderComment(Files.readString(path));
 
 			if (result.existing() == null) {
-				this.failedChecks.add(new FailedCheck(path, List.of("Missing header comment.")));
+				this.failedChecks.add(new FailedCheck(displayPath, List.of("Missing header comment.")));
 			} else {
 				List<ValidationError> errors = this.licenseHeader.validate(result.existing());
 				if (!errors.isEmpty()) {
 					this.failedChecks.add(new FailedCheck(
-							path,
+							displayPath,
 							errors.stream()
 									.map(error -> error.headerRule() + ": " + error.error().getMessage())
 									.toList()
@@ -93,20 +136,41 @@ public class CheckLicenseTask extends SourceDirectoryBasedTask {
 		@Override
 		public void end(Logger logger) {
 			if (this.failedChecks.isEmpty()) {
-				logger.lifecycle("All license header checks passed ({} files).", this.total);
+				var message = String.format("All license header checks passed (%d files).", this.total);
+				logger.lifecycle(message);
+				this.writeReportFile(message + "\n");
 			} else {
+				var builder = new StringBuilder();
+
 				for (var failedCheck : this.failedChecks) {
 					logger.error(" - {} - license checks have failed.", failedCheck.path());
+					builder.append(String.format("- %s - license checks have failed.\n", failedCheck.path));
 					for (var error : failedCheck.errors()) {
 						logger.error("    -> {}", error);
+						builder.append(String.format("\t-> %s\n", error));
 					}
 				}
 
+				this.writeReportFile(String.format("License header checks have failed on %d out of %d files.\n\n%s",
+						this.failedChecks.size(), this.total,
+						builder
+				));
+
 				throw new GradleException(
-						String.format("License header checks have failed on %s out of %d files.",
+						String.format("License header checks have failed on %d out of %d files.",
 								this.failedChecks.size(), this.total
 						)
 				);
+			}
+		}
+
+		private void writeReportFile(CharSequence content) {
+			var reportFilePath = CheckLicenseTask.this.getReportFile().get().getAsFile().toPath();
+			try {
+				Files.createDirectories(reportFilePath.getParent());
+				Files.writeString(reportFilePath, content);
+			} catch (IOException e) {
+				CheckLicenseTask.this.getLogger().error("Failed to create report file.", e);
 			}
 		}
 	}

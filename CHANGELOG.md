@@ -26,4 +26,13 @@
 - Added some extra default file-types for C-style header comments,
   specifically for common web languages and stylesheet formats ([#3]).
 
+## 2.0.0
+
+- Reworked tasks to work with the configuration cache.
+  - Tasks now use inputs.
+  - Source files input is now much more flexible.
+- Made several data structures serializable.
+- Switched from `PatternFilterable` to `Set<String>` for file matching in `HeaderCommentManager` as only extensions are matched.
+- Adapted `LicenseYearSelectionMode` to not consume `Project` arguments anymore.
+
 [#3]: https://github.com/YumiProject/yumi-gradle-licenser/pull/3

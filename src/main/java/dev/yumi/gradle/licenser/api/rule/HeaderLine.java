@@ -11,6 +11,7 @@ package dev.yumi.gradle.licenser.api.rule;
 import dev.yumi.gradle.licenser.api.rule.token.RuleToken;
 import dev.yumi.gradle.licenser.api.rule.token.TextToken;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -19,10 +20,10 @@ import java.util.List;
  * @param tokens the tokens of this line
  * @param optional {@code true} if this line is optional, or {@code false} otherwise
  * @author LambdAurora
- * @version 1.0.0
+ * @version 2.0.0
  * @since 1.0.0
  */
-public record HeaderLine(List<RuleToken> tokens, boolean optional) {
+public record HeaderLine(List<RuleToken> tokens, boolean optional) implements Serializable {
 	/**
 	 * {@return {@code true} if this line is empty, or {@code false} otherwise}
 	 */

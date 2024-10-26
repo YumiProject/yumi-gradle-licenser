@@ -26,7 +26,7 @@ import java.lang.invoke.MethodHandles;
  * No direct reference to the Kotlin multiplatform plugin is made due to classloader isolation issues.
  *
  * @author LambdAurora
- * @version 1.1.1
+ * @version 2.0.0
  * @since 1.1.0
  */
 @ApiStatus.Internal
@@ -58,12 +58,12 @@ public final class KotlinMultiplatformCompat {
 
 				project.getTasks().register(
 						getTaskName("check", name), CheckLicenseTask.class,
-						kotlinSet, ext
-				).configure(task -> task.onlyIf(t -> !ext.isSourceSetExcluded(name)));
+						ext
+				).configure(CheckLicenseTask.configureDefault(ext, project, kotlinSet, name));
 				project.getTasks().register(
 						getTaskName("apply", name), ApplyLicenseTask.class,
-						kotlinSet, ext
-				).configure(task -> task.onlyIf(t -> !ext.isSourceSetExcluded(name)));
+						ext
+				).configure(ApplyLicenseTask.configureDefault(ext, project, kotlinSet, name));
 			} catch (Throwable e) {
 				throw new RuntimeException(e);
 			}

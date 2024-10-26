@@ -25,7 +25,7 @@ import org.gradle.language.base.plugins.LifecycleBasePlugin;
  * Represents the Yumi Licenser Gradle plugin.
  *
  * @author LambdAurora
- * @version 1.1.1
+ * @version 2.0.0
  * @since 1.0.0
  */
 public class YumiLicenserGradlePlugin implements Plugin<Project> {
@@ -51,12 +51,12 @@ public class YumiLicenserGradlePlugin implements Plugin<Project> {
 					.all(sourceSet -> {
 						project.getTasks().register(
 								getTaskName("check", sourceSet), CheckLicenseTask.class,
-								sourceSet.getAllSource(), ext
-						).configure(task -> task.onlyIf(t -> !ext.isSourceSetExcluded(sourceSet)));
+								ext
+						).configure(CheckLicenseTask.configureDefault(ext, project, sourceSet.getAllSource(), sourceSet.getName()));
 						project.getTasks().register(
 								getTaskName("apply", sourceSet), ApplyLicenseTask.class,
-								sourceSet.getAllSource(), ext
-						).configure(task -> task.onlyIf(t -> !ext.isSourceSetExcluded(sourceSet)));
+								ext
+						).configure(ApplyLicenseTask.configureDefault(ext, project, sourceSet.getAllSource(), sourceSet.getName()));
 					});
 		});
 

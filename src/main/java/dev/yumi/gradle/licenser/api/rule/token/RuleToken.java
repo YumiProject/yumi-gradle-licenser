@@ -8,12 +8,14 @@
 
 package dev.yumi.gradle.licenser.api.rule.token;
 
+import java.io.Serializable;
+
 /**
  * Represents a token in a header rule definition.
  *
  * @author LambdAurora
- * @version 1.0.0
+ * @version 2.0.0
  * @since 1.0.0
  */
-public interface RuleToken {
+public sealed interface RuleToken extends Serializable permits TextToken, VarToken {
 }

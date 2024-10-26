@@ -32,7 +32,7 @@ import java.util.function.Predicate;
  * Provides various utilities.
  *
  * @author LambdAurora
- * @version 1.1.1
+ * @version 2.0.0
  * @since 1.0.0
  */
 @ApiStatus.Internal
@@ -134,19 +134,19 @@ public final class Utils {
 	/**
 	 * Gets the backup path for a given source file in the specified project.
 	 *
-	 * @param project the project
-	 * @param rootPath the root path
+	 * @param buildPath the build directory path
+	 * @param projectPath the root path
 	 * @param path the path of the file to back up
 	 * @return the backup path, or {@code null} if something went wrong
 	 * @throws IOException if the backup directories couldn't be created
 	 */
-	public static @Nullable Path getBackupPath(Project project, Path rootPath, Path path) throws IOException {
-		Path backupDir = project.getLayout().getBuildDirectory().getAsFile().get().toPath().resolve("yumi/licenser");
+	public static @Nullable Path getBackupPath(Path buildPath, Path projectPath, Path path) throws IOException {
+		Path backupDir = buildPath.resolve("yumi/licenser/backup");
 
 		Files.createDirectories(backupDir);
 
 		var pathAsString = path.toAbsolutePath().toString();
-		var rootPathAsString = rootPath.toString();
+		var rootPathAsString = projectPath.toString();
 
 		if (pathAsString.startsWith(rootPathAsString)) {
 			return backupDir.resolve(Paths.get(pathAsString.substring(rootPathAsString.length() + 1)))

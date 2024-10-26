@@ -19,14 +19,16 @@ import java.util.List;
  * Represents the license comment reader and writer for C-style files.
  *
  * @author LambdAurora
- * @version 1.0.0
+ * @version 2.0.0
  * @since 1.0.0
  */
-public class CStyleHeaderComment implements HeaderComment {
+public final class CStyleHeaderComment implements HeaderComment {
 	/**
 	 * The implementation instance of this header comment type.
 	 */
 	public static final CStyleHeaderComment INSTANCE = new CStyleHeaderComment();
+
+	private CStyleHeaderComment() {}
 
 	@Override
 	public @NotNull Result readHeaderComment(@NotNull String source) {

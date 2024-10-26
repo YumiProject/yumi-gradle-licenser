@@ -1,6 +1,6 @@
 # Yumi Licenser Gradle Plugin
 
-![Java 17](https://img.shields.io/badge/language-Java%2017-9B599A.svg?style=flat-square)
+![Java 17](https://img.shields.io/badge/language-Java%2017-9115ff.svg?style=flat-square)
 [![GitHub license](https://img.shields.io/github/license/YumiProject/yumi-gradle-licenser?style=flat-square)](https://raw.githubusercontent.com/YumiProject/yumi-gradle-licenser/main/LICENSE)
 ![Version](https://img.shields.io/github/v/tag/YumiProject/yumi-gradle-licenser?label=version&style=flat-square)
 
@@ -17,7 +17,7 @@ For a project you need to apply the plugin to your project:
 
 ```groovy
 plugins {
-	id "dev.yumi.gradle.licenser" version "1.2.+"
+	id "dev.yumi.gradle.licenser" version "2.0.+"
 }
 ```
 
@@ -39,11 +39,11 @@ The plugin can be configured using the `license` extension on the project.
 ```groovy
 license {
 	// Add a license header rule, at least one must be present.
-	rule file("codeformat/HEADER")
+	rule(file("codeformat/HEADER"))
 
 	// Exclude/include certain file types, defaults are provided to easily deal with Java/Kotlin projects.
-	include "**/*.java" // Include Java files into the file resolution.
-	exclude "**/*.properties" // Exclude properties files from the file resolution.
+	include("**/*.java") // Include Java files into the file resolution.
+	exclude("**/*.properties") // Exclude properties files from the file resolution.
 }
 ```
 

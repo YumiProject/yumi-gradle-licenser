@@ -20,7 +20,6 @@ import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.FileTreeIterator;
 import org.gradle.api.GradleException;
-import org.gradle.api.Project;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -36,7 +35,7 @@ import java.util.TimeZone;
 /**
  * Provides various Git-related utilities.
  *
- * @version 1.0.0
+ * @version 2.0.0
  * @since 1.0.0
  */
 @ApiStatus.Internal
@@ -53,10 +52,6 @@ public final class GitUtils {
 		}
 
 		return strValue;
-	}
-
-	private static Git openGit(Project project) throws IOException {
-		return Git.open(project.getRootDir());
 	}
 
 	private static Path getRepoRoot(Git git) {
@@ -153,12 +148,12 @@ public final class GitUtils {
 	/**
 	 * Gets the latest modified year of the given path in the Git history.
 	 *
-	 * @param project the project
+	 * @param rootDir the root directory of the project
 	 * @param path the file path to check the latest modified year of
 	 * @return the latest modified year
 	 */
-	public static int getModificationYear(@NotNull Project project, @NotNull Path path) {
-		try (var git = openGit(project)) {
+	public static int getModificationYear(@NotNull Path rootDir, @NotNull Path path) {
+		try (var git = Git.open(rootDir.toFile())) {
 			Path repoRoot = getRepoRoot(git);
 			path = repoRoot.relativize(path);
 			var pathString = getStandardizedPath(path);

@@ -1,15 +1,15 @@
 plugins {
-	id("dev.yumi.gradle.licenser") version "1.1.+"
+	id("dev.yumi.gradle.licenser") version "1.2.+"
 	id("com.gradle.plugin-publish") version "1.2.0"
 
-	kotlin("jvm") version "1.9.24"
+	kotlin("jvm") version "2.0.0"
 
 	`maven-publish`
 	signing
 }
 
 group = "dev.yumi"
-version = "1.2.0"
+version = "2.0.0"
 val javaVersion = 17
 
 repositories {
@@ -25,6 +25,8 @@ dependencies {
 	// Use JUnit Jupiter for testing.
 	testImplementation(libs.junit.jupiter)
 	testRuntimeOnly(libs.junit.launcher)
+	"functionalTestImplementation"(libs.junit.jupiter)
+	"functionalTestRuntimeOnly"(libs.junit.launcher)
 }
 
 gradlePlugin {

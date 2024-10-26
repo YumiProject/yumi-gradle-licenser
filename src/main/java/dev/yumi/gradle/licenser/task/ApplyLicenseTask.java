@@ -11,13 +11,17 @@ package dev.yumi.gradle.licenser.task;
 import dev.yumi.gradle.licenser.YumiLicenserGradleExtension;
 import dev.yumi.gradle.licenser.YumiLicenserGradlePlugin;
 import dev.yumi.gradle.licenser.api.comment.HeaderComment;
-import dev.yumi.gradle.licenser.api.comment.HeaderCommentManager;
 import dev.yumi.gradle.licenser.impl.LicenseHeader;
 import dev.yumi.gradle.licenser.util.Utils;
+import org.gradle.api.Action;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
+import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.logging.Logger;
+import org.gradle.api.tasks.IgnoreEmptyDirectories;
+import org.gradle.api.tasks.InputFiles;
+import org.gradle.api.tasks.SkipWhenEmpty;
 import org.gradle.api.tasks.TaskAction;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -34,33 +38,63 @@ import java.util.List;
  * Represents the task that applies license headers to project files.
  *
  * @author LambdAurora
- * @version 1.1.2
+ * @version 2.0.0
  * @since 1.0.0
  */
 @ApiStatus.Internal
-public class ApplyLicenseTask extends SourceDirectoryBasedTask {
-	private final LicenseHeader licenseHeader;
-	private final HeaderCommentManager headerCommentManager;
-
+public abstract class ApplyLicenseTask extends SourceDirectoryBasedTask {
 	@Inject
-	public ApplyLicenseTask(SourceDirectorySet sourceDirectorySet, YumiLicenserGradleExtension extension) {
-		super(sourceDirectorySet, extension.asPatternFilterable(), extension.getExcludeBuildDirectory().get());
-		this.licenseHeader = extension.getLicenseHeader();
-		this.headerCommentManager = extension.getHeaderCommentManager();
-		this.setDescription("Applies the correct license headers to source files in the "
-				+ sourceDirectorySet.getName()
-				+ " source set."
-		);
+	public ApplyLicenseTask(YumiLicenserGradleExtension extension) {
+		super(extension);
+		this.setDescription("Applies the correct license headers to source files.");
 		this.setGroup("generation");
 
-		if (!this.licenseHeader.isValid()) {
+		if (!this.getLicenseHeader().get().isValid()) {
 			this.setEnabled(false);
 		}
 	}
 
 	@TaskAction
 	public void execute() {
-		this.execute(this.headerCommentManager, new Consumer(this.licenseHeader));
+		this.execute(this.getHeaderCommentManager().get(), new Consumer(this.getLicenseHeader().get()));
+	}
+
+	/**
+	 * Configures an apply task with default values.
+	 *
+	 * @param ext the licenser extension
+	 * @param project the project
+	 * @param sourceSet the source set of the files to apply to
+	 * @param sourceSetName the name of the source set
+	 * @return the configuration action
+	 * @since 2.0.0
+	 */
+	public static Action<? super ApplyLicenseTask> configureDefault(
+			YumiLicenserGradleExtension ext,
+			Project project,
+			SourceDirectorySet sourceSet,
+			String sourceSetName
+	) {
+		return task -> {
+			task.setDescription("Applies the correct license headers to source files in the "
+					+ sourceSet.getName()
+					+ " source set."
+			);
+			task.getSourceFiles().from(
+					SourceDirectoryBasedTask.extractFromSourceSet(
+							ext,
+							project.getLayout().getBuildDirectory().get().getAsFile().toPath(),
+							sourceSet
+					)
+			);
+			task.getReportFile().fileValue(
+					project.getLayout().getBuildDirectory().get().getAsFile().toPath()
+							.resolve("yumi/licenser/apply_report_" + sourceSetName + ".txt")
+							.toFile()
+			);
+			boolean excluded = ext.isSourceSetExcluded(sourceSetName);
+			task.onlyIf(t -> !excluded);
+		};
 	}
 
 	static class Consumer implements SourceConsumer {
@@ -73,7 +107,15 @@ public class ApplyLicenseTask extends SourceDirectoryBasedTask {
 		}
 
 		@Override
-		public void consume(Project project, Logger logger, Path rootPath, HeaderComment headerComment, Path path) throws IOException {
+		public void consume(
+				Path rootDir,
+				int projectCreationYear,
+				Path buildPath,
+				Logger logger,
+				Path projectPath,
+				HeaderComment headerComment,
+				Path path
+		) throws IOException {
 			if (YumiLicenserGradlePlugin.DEBUG_MODE) {
 				logger.lifecycle("=> Visiting {}...", path);
 			}
@@ -81,7 +123,7 @@ public class ApplyLicenseTask extends SourceDirectoryBasedTask {
 			String read = Files.readString(path, StandardCharsets.UTF_8);
 			var readComment = headerComment.readHeaderComment(read);
 
-			List<String> lines = this.licenseHeader.format(project, logger, path, readComment.existing());
+			List<String> lines = this.licenseHeader.format(rootDir, projectCreationYear, logger, path, readComment.existing());
 
 			if (lines != null) {
 				this.updatedFiles.add(path);
@@ -103,7 +145,7 @@ public class ApplyLicenseTask extends SourceDirectoryBasedTask {
 				String content = start + headerComment.writeHeaderComment(lines, readComment.separator()) + end;
 
 				try {
-					var backupPath = Utils.getBackupPath(project, rootPath, path);
+					var backupPath = Utils.getBackupPath(buildPath, projectPath, path);
 
 					if (backupPath == null) {
 						throw new GradleException("Cannot backup file " + path + ", abandoning formatting.");

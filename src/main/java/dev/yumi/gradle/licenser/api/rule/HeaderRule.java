@@ -24,7 +24,7 @@ import java.util.*;
  * Represents a header rule which describes how a header should look like.
  *
  * @author LambdAurora
- * @version 1.0.0
+ * @version 2.0.0
  * @since 1.0.0
  */
 public class HeaderRule {
@@ -59,6 +59,16 @@ public class HeaderRule {
 	@Contract(pure = true)
 	public @UnmodifiableView @NotNull List<HeaderLine> getLines() {
 		return Collections.unmodifiableList(this.lines);
+	}
+
+	/**
+	 * {@return a view of the variables of this header}
+	 *
+	 * @since 2.0.0
+	 */
+	@Contract(pure = true)
+	public @UnmodifiableView @NotNull Map<String, VariableType<?>> getVariables() {
+		return Collections.unmodifiableMap(this.variables);
 	}
 
 	/**
