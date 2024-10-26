@@ -27,3 +27,9 @@ jobs:
         with:
           name: Artifacts_j${{ matrix.java }}
           path: ./build/libs/
+      - name: "Upload test reports"
+        uses: actions/upload-artifact@v4
+        with:
+          name: test_reports_j${{ matrix.java }}
+          retention-days: 2
+          path: ./build/reports/tests/
