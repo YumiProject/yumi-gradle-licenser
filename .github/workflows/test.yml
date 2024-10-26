@@ -29,6 +29,7 @@ jobs:
           path: ./build/libs/
       - name: "Upload test reports"
         uses: actions/upload-artifact@v4
+        if: ${{ always() }}
         with:
           name: test_reports_j${{ matrix.java }}
           retention-days: 2
