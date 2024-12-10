@@ -28,7 +28,7 @@ public class IgnoreBuildDirectoryFunctionalTest {
 
 	@Test
 	public void canRunTask() throws IOException {
-		var runner = new ScenarioRunner("ignore_build_directory", projectDir.toPath());
+		var runner = new ScenarioRunner("ignore_build_directory", projectDir.toPath(), false);
 		runner.setup();
 
 		runner.runCheck();

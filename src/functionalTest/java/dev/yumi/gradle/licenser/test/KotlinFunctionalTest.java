@@ -38,7 +38,7 @@ public class KotlinFunctionalTest {
 	}
 
 	private void run(String name, String path) throws IOException {
-		var runner = new ScenarioRunner(name, projectDir.toPath());
+		var runner = new ScenarioRunner(name, projectDir.toPath(), false);
 		runner.setup();
 
 		Path testKotlinPath = runner.path(path);

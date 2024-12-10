@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -30,7 +31,7 @@ public class ConfigurationCacheFunctionalTest {
 
 	@Test
 	public void canRunTask() throws IOException {
-		var runner = new ScenarioRunner("base_java", projectDir.toPath());
+		var runner = new ScenarioRunner("base_java", projectDir.toPath(), true);
 		runner.setup();
 
 		Path testClassPath = runner.path("src/main/java/test/TestClass.java");
@@ -39,7 +40,7 @@ public class ConfigurationCacheFunctionalTest {
 		Path testClassWithOptionalPath = runner.path("src/main/java/test/TestClassWithOptional.java");
 		Path testPackageInfoPath = runner.path("src/main/java/test/package-info.java");
 
-		var result = runner.run("--configuration-cache", "applyLicenses", "--stacktrace");
+		var result = runner.run();
 
 		// Verify the result
 		assertTrue(
@@ -81,5 +82,22 @@ public class ConfigurationCacheFunctionalTest {
 		runner.runCheck();
 		// Test the caching.
 		runner.runCheck();
+
+		Files.copy(
+				ScenarioRunner.TEST_JAR_PATH.resolve("scenarios/cache/TestClassModified.java"),
+				testClassPath,
+				StandardCopyOption.REPLACE_EXISTING
+		);
+		result = runner.run();
+		// Verify the result
+		assertTrue(
+				result.getOutput().contains("- Updated file " + testClassPath),
+				"Missing updated file string in output log."
+		);
+		result = runner.runCheck();
+		assertTrue(
+				result.getOutput().contains("All license header checks passed (1 files)."),
+				"Missing accurate checks passed string in output log."
+		);
 	}
 }

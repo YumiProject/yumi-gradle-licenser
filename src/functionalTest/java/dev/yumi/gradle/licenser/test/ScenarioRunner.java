@@ -10,22 +10,27 @@ package dev.yumi.gradle.licenser.test;
 
 import org.gradle.testkit.runner.BuildResult;
 import org.gradle.testkit.runner.GradleRunner;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class ScenarioRunner {
-	private static final PathResolver TEST_JAR_PATH;
+	static final PathResolver TEST_JAR_PATH;
 	private final String name;
 	private final Path projectDir;
+	private final boolean forceConfigurationCache;
 
-	public ScenarioRunner(String name, Path projectDir) {
+	public ScenarioRunner(String name, Path projectDir, boolean forceConfigurationCache) {
 		this.name = name;
 		this.projectDir = projectDir;
+		this.forceConfigurationCache = forceConfigurationCache;
 	}
 
 	private Path getScenarioPath(String path) {
@@ -36,12 +41,13 @@ public class ScenarioRunner {
 		return this.projectDir.resolve(path).normalize();
 	}
 
-	private Path copy(String pathStr) throws IOException {
+	public Path copy(String pathStr, @NotNull CopyOption... options) throws IOException {
 		Path destinationPath = this.path(pathStr);
 		Files.createDirectories(destinationPath.getParent());
 		Files.copy(
 				this.getScenarioPath('/' + pathStr),
-				destinationPath
+				destinationPath,
+				options
 		);
 		return destinationPath.toAbsolutePath();
 	}
@@ -95,11 +101,17 @@ public class ScenarioRunner {
 	}
 
 	public BuildResult run(String... args) {
+		var argsList = new ArrayList<>(List.of(args));
+
+		if (this.forceConfigurationCache) {
+			argsList.add(0, "--configuration-cache");
+		}
+
 		// Run the build
 		var runner = GradleRunner.create();
 		runner.forwardOutput();
 		runner.withPluginClasspath();
-		runner.withArguments(args);
+		runner.withArguments(argsList.toArray(String[]::new));
 		runner.withProjectDir(this.projectDir.toFile());
 		return runner.build();
 	}
@@ -108,8 +120,8 @@ public class ScenarioRunner {
 		return this.run("applyLicenses", "--stacktrace");
 	}
 
-	public void runCheck() {
-		this.run("checkLicenses", "--stacktrace");
+	public BuildResult runCheck() {
+		return this.run("checkLicenses", "--stacktrace");
 	}
 
 	interface PathResolver {

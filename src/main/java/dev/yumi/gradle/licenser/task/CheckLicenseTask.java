@@ -15,27 +15,28 @@ import dev.yumi.gradle.licenser.impl.ValidationError;
 import org.gradle.api.Action;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
-import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.logging.Logger;
-import org.gradle.api.tasks.IgnoreEmptyDirectories;
-import org.gradle.api.tasks.InputFiles;
-import org.gradle.api.tasks.SkipWhenEmpty;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.work.ChangeType;
+import org.gradle.work.FileChange;
+import org.gradle.work.InputChanges;
 import org.jetbrains.annotations.ApiStatus;
 
 import javax.inject.Inject;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.StreamSupport;
 
 /**
  * Represents a task that checks the validity of license headers in project files.
  *
  * @author LambdAurora
- * @version 2.0.0
+ * @version 2.1.0
  * @since 1.0.0
  */
 @ApiStatus.Internal
@@ -52,8 +53,17 @@ public abstract class CheckLicenseTask extends SourceDirectoryBasedTask {
 	}
 
 	@TaskAction
-	public void execute() {
-		this.execute(this.getHeaderCommentManager().get(), new Consumer(this.getLicenseHeader().get()));
+	public void execute(InputChanges inputChanges) {
+		this.execute(
+				this.getHeaderCommentManager().get(),
+				StreamSupport.stream(
+								inputChanges.getFileChanges(this.getSourceFiles()).spliterator(),
+								false
+						).filter(action -> action.getChangeType() != ChangeType.REMOVED)
+						.map(FileChange::getFile)
+						.map(File::toPath),
+				new Consumer(this.getLicenseHeader().get())
+		);
 	}
 
 	/**

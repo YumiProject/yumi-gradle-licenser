@@ -28,7 +28,7 @@ public class BaseJavaFunctionalTest {
 
 	@Test
 	public void canRunTask() throws IOException {
-		var runner = new ScenarioRunner("base_java", projectDir.toPath());
+		var runner = new ScenarioRunner("base_java", projectDir.toPath(), false);
 		runner.setup();
 
 		Path testClassPath = runner.path("src/main/java/test/TestClass.java");

@@ -25,12 +25,13 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * Represents a task that acts on a given source directory set.
  *
  * @author LambdAurora
- * @version 2.0.0
+ * @version 2.1.0
  * @since 1.0.0
  */
 @ApiStatus.Internal
@@ -95,15 +96,15 @@ public abstract class SourceDirectoryBasedTask extends DefaultTask {
 	 * Executes the given action to all matched files.
 	 *
 	 * @param headerCommentManager the header comment manager to find out the header comments of files
+	 * @param sourceFiles the source files to treat in this task
 	 * @param consumer the action to execute on a given file
 	 */
-	void execute(HeaderCommentManager headerCommentManager, SourceConsumer consumer) {
+	void execute(HeaderCommentManager headerCommentManager, Stream<Path> sourceFiles, SourceConsumer consumer) {
 		Path rootDir = Path.of(this.getRootDirectory().get());
 		Path projectDir = Path.of(this.getProjectDirectory().get());
 		Path buildDir = Path.of(this.getBuildDirectory().get());
 
-		for (var file : this.getSourceFiles()) {
-			Path sourcePath = file.toPath();
+		sourceFiles.forEach(sourcePath -> {
 			HeaderComment headerComment = headerCommentManager.findHeaderComment(sourcePath);
 
 			if (headerComment != null) {
@@ -121,7 +122,7 @@ public abstract class SourceDirectoryBasedTask extends DefaultTask {
 					throw new GradleException("Failed to load file " + sourcePath, e);
 				}
 			}
-		}
+		});
 
 		consumer.end(this.getLogger());
 	}

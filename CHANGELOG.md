@@ -35,4 +35,8 @@
 - Switched from `PatternFilterable` to `Set<String>` for file matching in `HeaderCommentManager` as only extensions are matched.
 - Adapted `LicenseYearSelectionMode` to not consume `Project` arguments anymore.
 
+## 2.1.0
+
+- Made check license tasks incremental.
+
 [#3]: https://github.com/YumiProject/yumi-gradle-licenser/pull/3

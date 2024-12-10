@@ -16,16 +16,14 @@ import dev.yumi.gradle.licenser.util.Utils;
 import org.gradle.api.Action;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
-import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.logging.Logger;
-import org.gradle.api.tasks.IgnoreEmptyDirectories;
-import org.gradle.api.tasks.InputFiles;
-import org.gradle.api.tasks.SkipWhenEmpty;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.UntrackedTask;
 import org.jetbrains.annotations.ApiStatus;
 
 import javax.inject.Inject;
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -33,15 +31,17 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.StreamSupport;
 
 /**
  * Represents the task that applies license headers to project files.
  *
  * @author LambdAurora
- * @version 2.0.0
+ * @version 2.1.0
  * @since 1.0.0
  */
 @ApiStatus.Internal
+@UntrackedTask(because = "Task may rewrite the input files.")
 public abstract class ApplyLicenseTask extends SourceDirectoryBasedTask {
 	@Inject
 	public ApplyLicenseTask(YumiLicenserGradleExtension extension) {
@@ -56,7 +56,11 @@ public abstract class ApplyLicenseTask extends SourceDirectoryBasedTask {
 
 	@TaskAction
 	public void execute() {
-		this.execute(this.getHeaderCommentManager().get(), new Consumer(this.getLicenseHeader().get()));
+		this.execute(
+				this.getHeaderCommentManager().get(),
+				StreamSupport.stream(this.getSourceFiles().spliterator(), false).map(File::toPath),
+				new Consumer(this.getLicenseHeader().get())
+		);
 	}
 
 	/**
@@ -123,7 +127,9 @@ public abstract class ApplyLicenseTask extends SourceDirectoryBasedTask {
 			String read = Files.readString(path, StandardCharsets.UTF_8);
 			var readComment = headerComment.readHeaderComment(read);
 
-			List<String> lines = this.licenseHeader.format(rootDir, projectCreationYear, logger, path, readComment.existing());
+			List<String> lines = this.licenseHeader.format(
+					rootDir, projectCreationYear, logger, path, readComment.existing()
+			);
 
 			if (lines != null) {
 				this.updatedFiles.add(path);
@@ -142,7 +148,9 @@ public abstract class ApplyLicenseTask extends SourceDirectoryBasedTask {
 					end = readComment.separator() + readComment.separator() + end;
 				}
 
-				String content = start + headerComment.writeHeaderComment(lines, readComment.separator()) + end;
+				String content = start
+						+ headerComment.writeHeaderComment(lines, readComment.separator())
+						+ end;
 
 				try {
 					var backupPath = Utils.getBackupPath(buildPath, projectPath, path);

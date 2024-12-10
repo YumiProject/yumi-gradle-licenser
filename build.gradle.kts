@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "dev.yumi"
-version = "2.0.0"
+version = "2.1.0"
 val javaVersion = 17
 
 repositories {
@@ -79,8 +79,10 @@ tasks.withType<Javadoc>().configureEach {
 }
 
 tasks.jar {
+	val archivesName = base.archivesName.get()
+
 	from("LICENSE") {
-		rename { "${it}_${base.archivesName.get()}" }
+		rename { "${it}_${archivesName}" }
 	}
 }
 

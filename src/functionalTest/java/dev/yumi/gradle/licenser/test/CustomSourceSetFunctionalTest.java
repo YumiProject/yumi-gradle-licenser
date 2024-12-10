@@ -26,7 +26,7 @@ public class CustomSourceSetFunctionalTest {
 
 	@Test
 	public void canRunTask() throws IOException {
-		var runner = new ScenarioRunner("custom_sourceset", projectDir.toPath());
+		var runner = new ScenarioRunner("custom_sourceset", projectDir.toPath(), false);
 		runner.setup();
 
 		var result = runner.run();
