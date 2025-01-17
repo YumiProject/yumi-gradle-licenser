@@ -26,9 +26,9 @@ class CStyleHeaderCommentTest {
 				 *
 				 * Yippee
 				 */
-								
+				
 				#include <stdio.h>
-								
+				
 				void main() {
 					printf("Hello world\\n");
 				}
@@ -48,7 +48,7 @@ class CStyleHeaderCommentTest {
 		var result = CStyleHeaderComment.INSTANCE.readHeaderComment("""
 				/* Smol */
 				#include <stdio.h>
-								
+				
 				void main() {
 					printf("Hello world\\n");
 				}
@@ -66,7 +66,7 @@ class CStyleHeaderCommentTest {
 	void testCHeaderParsingNone() {
 		var result = CStyleHeaderComment.INSTANCE.readHeaderComment("""
 				#include <stdio.h>
-								
+				
 				void main() {
 					printf("Hello world\\n");
 				}
@@ -90,9 +90,9 @@ class CStyleHeaderCommentTest {
 				 *
 				 * Yippee
 				 */
-								
+				
 				package dev.yumi.gradle.licenser.test;
-								
+				
 				class Test {}
 				""");
 
@@ -110,7 +110,7 @@ class CStyleHeaderCommentTest {
 		var result = CStyleHeaderComment.INSTANCE.readHeaderComment("""
 				/* Smol */
 				package dev.yumi.gradle.licenser.test;
-								
+				
 				class Test {}
 				""");
 
@@ -126,7 +126,7 @@ class CStyleHeaderCommentTest {
 	void testJavaHeaderParsingNone() {
 		var result = CStyleHeaderComment.INSTANCE.readHeaderComment("""
 				package dev.yumi.gradle.licenser.test;
-								
+				
 				class Test {}
 				""");
 
@@ -148,11 +148,11 @@ class CStyleHeaderCommentTest {
 				 *
 				 * Yippee
 				 */
-								
+				
 				@file:JvmName("TestKotlinFile")
-								
+				
 				package dev.yumi.gradle.licenser.test
-								
+				
 				fun main(args: Array<String>) {
 					println("Hello, world!")
 				}
@@ -172,9 +172,9 @@ class CStyleHeaderCommentTest {
 		var result = CStyleHeaderComment.INSTANCE.readHeaderComment("""
 				/* Smol */
 				@file:JvmName("TestKotlinFile")
-								
+				
 				package dev.yumi.gradle.licenser.test
-								
+				
 				fun main(args: Array<String>) {
 					println("Hello, world!")
 				}
@@ -192,9 +192,9 @@ class CStyleHeaderCommentTest {
 	void testKotlinHeaderParsingNone() {
 		var result = CStyleHeaderComment.INSTANCE.readHeaderComment("""
 				@file:JvmName("TestKotlinFile")
-								
+				
 				package dev.yumi.gradle.licenser.test
-								
+				
 				fun main(args: Array<String>) {
 					println("Hello, world!")
 				}
@@ -218,7 +218,7 @@ class CStyleHeaderCommentTest {
 				 *
 				 * Yippee
 				 */
-								
+				
 				@main def HelloWorld(args: String*): Unit =
 					println("Hello, World!")
 				""");

@@ -39,4 +39,8 @@
 
 - Made check license tasks incremental.
 
+## 2.1.1
+
+- Fixed XML comment parser not properly parsing existing comments ([#5](https://github.com/YumiProject/yumi-gradle-licenser/issues/5)).
+
 [#3]: https://github.com/YumiProject/yumi-gradle-licenser/pull/3

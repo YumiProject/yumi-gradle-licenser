@@ -15,29 +15,28 @@ private const val COMMENT_END = "-->"
  * [HeaderComment] implementation for XML-style comments.
  *
  * @author gdude2002
+ * @version 2.1.1
  * @since 1.2.0
  */
 public open class XmlStyleHeaderComment protected constructor() : HeaderComment {
 	override fun readHeaderComment(source: String): HeaderComment.Result {
 		val separator = this.extractLineSeparator(source)
 
-		// Find the first comment block using a blank line
-		val firstBlock = source.split(separator.repeat(2)).first()
+		// Find the start of the comment block.
+		val firstBlockStart = source.indices.first { index -> !Character.isWhitespace(source[index]) }
 
 		// Find the start of the comment by its opening characters
-		val start = firstBlock.indexOf(COMMENT_START)
+		val start = source.indexOf(COMMENT_START)
 
-		if (start != 0) { // If the comment doesn't open on the first character of the block...
-			// ...check whether all prefixing characters are spaces.
-			val allWhitespacePrefixed = (0 until start).all { source[it] in arrayOf(' ', separator) }
-
-			if (!allWhitespacePrefixed) { // If not, this isn't a licence header – bail out.
-				return HeaderComment.Result(0, 0, null, separator)
-			}
+		if (start != firstBlockStart) {
+			// If the comment doesn't open on the first character of the block, something fishy is going on.
+			return HeaderComment.Result(0, 0, null, separator)
 		}
 
+		// We're now officially in the first comment block.
+
 		// Find the last character of the comment, including the closing characters.
-		val end = firstBlock.indexOf(COMMENT_END) + COMMENT_END.length
+		val end = source.indexOf(COMMENT_END) + COMMENT_END.length
 
 		if (start < 0 || end < 0) {
 			// If we can't find the start or end of the block, there's no licence header – bail out.

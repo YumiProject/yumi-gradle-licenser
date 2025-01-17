@@ -19,7 +19,7 @@ class XmlStyleHeaderCommentTest {
 			"""
 			<!--
 				Sample License Header
-				
+
 				Yippee
 			-->
 			
@@ -34,7 +34,7 @@ class XmlStyleHeaderCommentTest {
 		)
 
 		assertEquals(0, result.start)
-		assertEquals(41, result.end)
+		assertEquals(40, result.end)
 		assertEquals("\n", result.separator)
 
 		assertNotNull(result.existing)

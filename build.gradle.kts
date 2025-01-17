@@ -1,5 +1,5 @@
 plugins {
-	id("dev.yumi.gradle.licenser") version "2.0.+"
+	id("dev.yumi.gradle.licenser") version "2.1.+"
 	id("com.gradle.plugin-publish") version "1.2.0"
 
 	kotlin("jvm") version "2.0.0"
@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "dev.yumi"
-version = "2.1.0"
+version = "2.1.1"
 val javaVersion = 17
 
 repositories {
