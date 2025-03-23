@@ -23,9 +23,11 @@ dependencies {
 	compileOnly(libs.jetbrains.annotations)
 	api(libs.jgit)
 	// Use JUnit Jupiter for testing.
-	platform(rootProject.libs.junit.bom)
+	val junitPlatform = platform(libs.junit.bom)
+	testImplementation(junitPlatform)
 	testImplementation(libs.junit.jupiter)
 	testRuntimeOnly(libs.junit.launcher)
+	"functionalTestImplementation"(junitPlatform)
 	"functionalTestImplementation"(libs.junit.jupiter)
 	"functionalTestRuntimeOnly"(libs.junit.launcher)
 }
