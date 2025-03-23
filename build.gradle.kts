@@ -1,6 +1,6 @@
 plugins {
 	id("dev.yumi.gradle.licenser") version "2.1.+"
-	id("com.gradle.plugin-publish") version "1.2.0"
+	id("com.gradle.plugin-publish") version "1.3.1"
 
 	kotlin("jvm") version "2.0.0"
 
@@ -23,6 +23,7 @@ dependencies {
 	compileOnly(libs.jetbrains.annotations)
 	api(libs.jgit)
 	// Use JUnit Jupiter for testing.
+	platform(rootProject.libs.junit.bom)
 	testImplementation(libs.junit.jupiter)
 	testRuntimeOnly(libs.junit.launcher)
 	"functionalTestImplementation"(libs.junit.jupiter)
