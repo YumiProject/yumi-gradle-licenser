@@ -46,5 +46,6 @@
 ## 2.2.0
 
 - Made license application parallelized using Gradle's Workers.
+- Updated support for Kotlin multiplatform plugin.
 
 [#3]: https://github.com/YumiProject/yumi-gradle-licenser/pull/3

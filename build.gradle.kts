@@ -1,8 +1,8 @@
 plugins {
-	id("dev.yumi.gradle.licenser") version "2.1.+"
-	id("com.gradle.plugin-publish") version "1.3.1"
+	alias(libs.plugins.licenser)
+	alias(libs.plugins.plugin.publish)
 
-	kotlin("jvm") version "2.0.0"
+	kotlin("jvm") version "2.2.0"
 
 	`maven-publish`
 	signing
