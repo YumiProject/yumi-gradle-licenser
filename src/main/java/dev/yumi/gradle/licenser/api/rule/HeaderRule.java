@@ -94,7 +94,7 @@ public class HeaderRule {
 			String headerLine = header.get(headerLineIndex);
 
 			if (ruleLineIndex >= this.lines.size()) {
-				return new ParsedData(variableValues, presentOptionalLines, new HeaderParseException(headerLineIndex, "There is unexpected extra header lines."));
+				return new ParsedData(variableValues, presentOptionalLines, new HeaderParseException(headerLineIndex, "There is unexpected details header lines."));
 			}
 
 			HeaderLine ruleLine = this.lines.get(ruleLineIndex);

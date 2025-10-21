@@ -8,9 +8,7 @@ plugins {
 	signing
 }
 
-group = "dev.yumi"
-version = "2.1.1"
-val javaVersion = 17
+val javaVersion = Integer.parseInt(project.property("java_version").toString())
 
 repositories {
 	mavenCentral()
@@ -82,10 +80,10 @@ tasks.withType<Javadoc>().configureEach {
 }
 
 tasks.jar {
-	val archivesName = base.archivesName.get()
+	inputs.property("archives_name", base.archivesName)
 
 	from("LICENSE") {
-		rename { "${it}_${archivesName}" }
+		rename { "${it}_${inputs.properties["archives_name"]}" }
 	}
 }
 

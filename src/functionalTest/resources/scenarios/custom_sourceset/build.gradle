@@ -6,12 +6,12 @@ plugins {
 sourceSets {
 	custom {
 		java {
-			srcDir "src/custom/java"
+			srcDir("src/custom/java")
 		}
 	}
 }
 
 license {
-	rule rootProject.file("HEADER")
-	exclude sourceSets.custom
+	rule(rootProject.file("HEADER"))
+	exclude(sourceSets.custom)
 }

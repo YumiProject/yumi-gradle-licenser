@@ -4,5 +4,5 @@ plugins {
 }
 
 license {
-	rule rootProject.file("HEADER")
+	rule(rootProject.file("HEADER"))
 }

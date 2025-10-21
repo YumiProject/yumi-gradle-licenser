@@ -8,16 +8,11 @@
 
 package dev.yumi.gradle.licenser.impl;
 
-import dev.yumi.gradle.licenser.YumiLicenserGradlePlugin;
 import dev.yumi.gradle.licenser.api.rule.HeaderFileContext;
 import dev.yumi.gradle.licenser.api.rule.HeaderLine;
 import dev.yumi.gradle.licenser.api.rule.HeaderRule;
 import dev.yumi.gradle.licenser.api.rule.LicenseYearSelectionMode;
-import dev.yumi.gradle.licenser.api.rule.token.RuleToken;
-import dev.yumi.gradle.licenser.api.rule.token.TextToken;
-import dev.yumi.gradle.licenser.api.rule.token.VarToken;
 import dev.yumi.gradle.licenser.api.rule.variable.VariableType;
-import org.gradle.api.logging.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,7 +24,7 @@ import java.util.*;
  * Represents the valid license headers for this project.
  *
  * @author LambdAurora
- * @version 2.0.0
+ * @version 2.2.0
  * @since 1.0.0
  */
 public final class LicenseHeader implements Serializable {
@@ -90,13 +85,13 @@ public final class LicenseHeader implements Serializable {
 	 * @param readComment the read header comment if successful, or {@code null} otherwise
 	 * @return {@code true} if files changed, otherwise {@code false}
 	 */
-	public @Nullable List<String> format(Path rootPath, int projectCreationYear, Logger logger, Path path, @Nullable List<String> readComment) {
+	public @Nullable List<String> format(
+			Path rootPath, int projectCreationYear, LogConsumer logger, Path path, @Nullable List<String> readComment
+	) {
 		List<String> newHeader = null;
 
 		if (readComment == null) {
-			if (YumiLicenserGradlePlugin.DEBUG_MODE) {
-				logger.lifecycle("  => Could not find header. Using default rule.", path);
-			}
+			logger.log("  => Could not find header. Using default rule.");
 
 			newHeader = this.format(
 					rootPath, projectCreationYear, path, this.rules.get(0),
@@ -109,9 +104,7 @@ public final class LicenseHeader implements Serializable {
 				var data = rule.parseHeader(readComment);
 
 				if (data.error() == null) {
-					if (YumiLicenserGradlePlugin.DEBUG_MODE) {
-						logger.lifecycle("  => Found rule in lookup.", path);
-					}
+					logger.log("  => Found rule in lookup.");
 
 					newHeader = this.format(rootPath, projectCreationYear, path, rule, data);
 					break;
@@ -123,9 +116,7 @@ public final class LicenseHeader implements Serializable {
 			}
 
 			if (newHeader == null) {
-				if (YumiLicenserGradlePlugin.DEBUG_MODE) {
-					logger.lifecycle("  => Could not find rule in lookup. Using default rule.", path);
-				}
+				logger.log("  => Could not find rule in lookup. Using default rule.");
 
 				newHeader = this.format(rootPath, projectCreationYear, path, this.rules.get(0), first);
 			}
@@ -138,7 +129,9 @@ public final class LicenseHeader implements Serializable {
 		}
 	}
 
-	private List<String> format(Path rootPath, int projectCreationYear, Path path, HeaderRule rule, HeaderRule.ParsedData parsed) {
+	private List<String> format(
+			Path rootPath, int projectCreationYear, Path path, HeaderRule rule, HeaderRule.ParsedData parsed
+	) {
 		try {
 			int creationYear = rule.getYearSelectionMode().getCreationYear(rootPath, projectCreationYear, path);
 			int lastModifiedYear = rule.getYearSelectionMode().getModificationYear(rootPath, path);

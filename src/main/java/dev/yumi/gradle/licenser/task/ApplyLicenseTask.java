@@ -10,34 +10,34 @@ package dev.yumi.gradle.licenser.task;
 
 import dev.yumi.gradle.licenser.YumiLicenserGradleExtension;
 import dev.yumi.gradle.licenser.YumiLicenserGradlePlugin;
-import dev.yumi.gradle.licenser.api.comment.HeaderComment;
-import dev.yumi.gradle.licenser.impl.LicenseHeader;
-import dev.yumi.gradle.licenser.util.Utils;
+import dev.yumi.gradle.licenser.task.work.ApplyLicenseWorkAction;
+import dev.yumi.gradle.licenser.task.work.ApplyLicenseWorkAction.ApplyReportDetails;
+import dev.yumi.gradle.licenser.task.work.LicenseWorkAction.Report;
 import org.gradle.api.Action;
-import org.gradle.api.GradleException;
 import org.gradle.api.Project;
 import org.gradle.api.file.SourceDirectorySet;
-import org.gradle.api.logging.Logger;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.UntrackedTask;
+import org.gradle.workers.WorkerExecutor;
 import org.jetbrains.annotations.ApiStatus;
 
 import javax.inject.Inject;
-import java.io.File;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.List;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
+import java.util.LinkedHashMap;
 import java.util.stream.StreamSupport;
 
 /**
  * Represents the task that applies license headers to project files.
  *
  * @author LambdAurora
- * @version 2.1.0
+ * @version 2.2.0
  * @since 1.0.0
  */
 @ApiStatus.Internal
@@ -54,13 +54,77 @@ public abstract class ApplyLicenseTask extends SourceDirectoryBasedTask {
 		}
 	}
 
+	@Inject
+	public abstract WorkerExecutor getWorkerExecutor();
+
+	@SuppressWarnings("unchecked")
 	@TaskAction
-	public void execute() {
-		this.execute(
-				this.getHeaderCommentManager().get(),
-				StreamSupport.stream(this.getSourceFiles().spliterator(), false).map(File::toPath),
-				new Consumer(this.getLicenseHeader().get())
-		);
+	public void execute() throws IOException, ClassNotFoundException, NoSuchAlgorithmException {
+		var workQueue = this.getWorkerExecutor().noIsolation();
+		var files = StreamSupport.stream(this.getSourceFiles().spliterator(), false).toList();
+
+		var tempDir = Files.createTempDirectory("yumi-gradle-licenser-workers-");
+		var reportPaths = new LinkedHashMap<Path, Path>();
+
+		var digest = MessageDigest.getInstance("SHA-256");
+
+		for (var file : files) {
+			var hashBytes = digest.digest(file.toPath().toAbsolutePath().toString().getBytes(StandardCharsets.UTF_8));
+			var nameHash = HexFormat.of().formatHex(hashBytes);
+
+			var reportPath = tempDir.resolve(nameHash);
+			reportPaths.put(file.toPath(), reportPath);
+
+			workQueue.submit(ApplyLicenseWorkAction.class, params -> {
+				params.getSourceFile().set(file);
+				params.getLicenseHeader().set(this.getLicenseHeader());
+				params.getHeaderCommentManager().set(this.getHeaderCommentManager());
+				params.getRootDirectory().set(this.getRootDirectory());
+				params.getProjectDirectory().set(this.getProjectDirectory());
+				params.getBuildDirectory().set(this.getBuildDirectory());
+				params.getProjectCreationYear().set(this.getProjectCreationYear());
+				params.getReportFile().set(reportPath.toFile());
+				params.getDebugMode().set(YumiLicenserGradlePlugin.DEBUG_MODE);
+			});
+		}
+
+		workQueue.await();
+
+		var reports = new LinkedHashMap<Path, Report<ApplyReportDetails>>();
+		int total = 0;
+
+		var logger = this.getLogger();
+
+		for (var reportPath : reportPaths.entrySet()) {
+			if (Files.exists(reportPath.getValue())) {
+				total++;
+
+				try (
+						var fileIn = Files.newInputStream(reportPath.getValue());
+						var objectIn = new ObjectInputStream(fileIn)
+				) {
+					var report = (Report<ApplyReportDetails>) objectIn.readObject();
+					report.logs().forEach(line -> logger.lifecycle("{}", line));
+					reports.put(reportPath.getKey(), report);
+				}
+			}
+		}
+
+		int updated = 0;
+
+		for (var entry : reports.entrySet()) {
+			if (entry.getValue().details().updated()) {
+				logger.lifecycle(" - Updated file {}", entry.getKey());
+				updated++;
+			}
+		}
+
+		logger.lifecycle("Updated {} out of {} files.", updated, total);
+
+		for (var path : reportPaths.values()) {
+			Files.delete(path);
+		}
+		Files.delete(tempDir);
 	}
 
 	/**
@@ -99,88 +163,5 @@ public abstract class ApplyLicenseTask extends SourceDirectoryBasedTask {
 			boolean excluded = ext.isSourceSetExcluded(sourceSetName);
 			task.onlyIf(t -> !excluded);
 		};
-	}
-
-	static class Consumer implements SourceConsumer {
-		private final LicenseHeader licenseHeader;
-		private final List<Path> updatedFiles = new ArrayList<>();
-		private int total = 0;
-
-		public Consumer(LicenseHeader licenseHeader) {
-			this.licenseHeader = licenseHeader;
-		}
-
-		@Override
-		public void consume(
-				Path rootDir,
-				int projectCreationYear,
-				Path buildPath,
-				Logger logger,
-				Path projectPath,
-				HeaderComment headerComment,
-				Path path
-		) throws IOException {
-			if (YumiLicenserGradlePlugin.DEBUG_MODE) {
-				logger.lifecycle("=> Visiting {}...", path);
-			}
-
-			String read = Files.readString(path, StandardCharsets.UTF_8);
-			var readComment = headerComment.readHeaderComment(read);
-
-			List<String> lines = this.licenseHeader.format(
-					rootDir, projectCreationYear, logger, path, readComment.existing()
-			);
-
-			if (lines != null) {
-				this.updatedFiles.add(path);
-
-				String start = "";
-
-				if (readComment.start() != 0) {
-					start = read.substring(0, readComment.start());
-
-					if (start.isBlank()) start = "";
-				}
-
-				String end = read.substring(readComment.end());
-
-				if (readComment.start() == readComment.end() && readComment.start() == 0) {
-					end = readComment.separator() + readComment.separator() + end;
-				}
-
-				String content = start
-						+ headerComment.writeHeaderComment(lines, readComment.separator())
-						+ end;
-
-				try {
-					var backupPath = Utils.getBackupPath(buildPath, projectPath, path);
-
-					if (backupPath == null) {
-						throw new GradleException("Cannot backup file " + path + ", abandoning formatting.");
-					}
-
-					if (!Files.isDirectory(backupPath.getParent())) {
-						Files.createDirectories(backupPath.getParent());
-					}
-
-					Files.copy(path, backupPath, StandardCopyOption.REPLACE_EXISTING);
-				} catch (IOException e) {
-					throw new GradleException("Cannot backup file " + path + ", abandoning formatting.", e);
-				}
-
-				Files.writeString(path, content, StandardCharsets.UTF_8);
-			}
-
-			this.total++;
-		}
-
-		@Override
-		public void end(Logger logger) {
-			for (var path : this.updatedFiles) {
-				logger.lifecycle(" - Updated file {}", path);
-			}
-
-			logger.lifecycle("Updated {} out of {} files.", this.updatedFiles.size(), this.total);
-		}
 	}
 }

@@ -1,5 +1,5 @@
 plugins {
-	id 'org.jetbrains.kotlin.multiplatform' version '1.9.22'
+	id("org.jetbrains.kotlin.multiplatform") version "2.2.20"
 	id 'dev.yumi.gradle.licenser'
 }
 
@@ -8,5 +8,5 @@ kotlin {
 }
 
 license {
-	rule rootProject.file("HEADER")
+	rule(rootProject.file("HEADER"))
 }
