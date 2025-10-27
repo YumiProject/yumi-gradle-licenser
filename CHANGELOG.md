@@ -48,4 +48,8 @@
 - Made license application parallelized using Gradle's Workers.
 - Updated support for Kotlin multiplatform plugin.
 
+### 2.2.1
+
+- Fixed `NoSuchFileException` errors when applying licenses ([#6](https://github.com/YumiProject/yumi-gradle-licenser/issues/6)).
+
 [#3]: https://github.com/YumiProject/yumi-gradle-licenser/pull/3

@@ -29,6 +29,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.HexFormat;
 import java.util.LinkedHashMap;
 import java.util.stream.StreamSupport;
@@ -37,7 +38,7 @@ import java.util.stream.StreamSupport;
  * Represents the task that applies license headers to project files.
  *
  * @author LambdAurora
- * @version 2.2.0
+ * @version 2.2.1
  * @since 1.0.0
  */
 @ApiStatus.Internal
@@ -91,12 +92,14 @@ public abstract class ApplyLicenseTask extends SourceDirectoryBasedTask {
 		workQueue.await();
 
 		var reports = new LinkedHashMap<Path, Report<ApplyReportDetails>>();
+		var toClean = new ArrayList<Path>();
 		int total = 0;
 
 		var logger = this.getLogger();
 
 		for (var reportPath : reportPaths.entrySet()) {
 			if (Files.exists(reportPath.getValue())) {
+				toClean.add(reportPath.getValue());
 				total++;
 
 				try (
@@ -121,7 +124,7 @@ public abstract class ApplyLicenseTask extends SourceDirectoryBasedTask {
 
 		logger.lifecycle("Updated {} out of {} files.", updated, total);
 
-		for (var path : reportPaths.values()) {
+		for (var path : toClean) {
 			Files.delete(path);
 		}
 		Files.delete(tempDir);
