@@ -52,4 +52,8 @@
 
 - Fixed `NoSuchFileException` errors when applying licenses ([#6](https://github.com/YumiProject/yumi-gradle-licenser/issues/6)).
 
+### 2.2.2
+
+- Fixed `StackOverflowError` with Gradle 9.3.
+
 [#3]: https://github.com/YumiProject/yumi-gradle-licenser/pull/3

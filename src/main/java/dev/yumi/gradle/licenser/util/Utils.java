@@ -163,7 +163,7 @@ public final class Utils {
 	 * @return the creation year
 	 */
 	public static int getProjectCreationYear(Project project) {
-		if (project.getRootProject() != project) {
+		if (!project.getPath().equals(":")) {
 			var ext = project.getRootProject().getExtensions().findByType(YumiLicenserGradleExtension.class);
 
 			if (ext != null) {
