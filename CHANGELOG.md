@@ -58,8 +58,11 @@
 
 ## 3.0.0
 
-- Refactored task registration.
+- Refactored task registration ([#8](https://github.com/YumiProject/yumi-gradle-licenser/issues/8)).
   - Added `registerTasks` methods in extension to easily register check/apply tasks for given source files regardless of source set.
   - Lowered reliance over source sets, abstracting further away.
+- Added a way to override header comment implementation for existing formats.
+  - While not a full fix for [#9], it at least gives a way for custom solutions until a proper resolution is found.
 
 [#3]: https://github.com/YumiProject/yumi-gradle-licenser/pull/3
+[#9]: https://github.com/YumiProject/yumi-gradle-licenser/issues/9

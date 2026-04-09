@@ -9,8 +9,7 @@
 package dev.yumi.gradle.licenser.api.comment;
 
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
@@ -29,7 +28,7 @@ public interface HeaderComment {
 	 * @return the read result
 	 */
 	@Contract(pure = true)
-	@NotNull Result readHeaderComment(@NotNull String source);
+	Result readHeaderComment(String source);
 
 	/**
 	 * Extracts the line separator used for the given source string.
@@ -38,7 +37,7 @@ public interface HeaderComment {
 	 * @return the line separator
 	 */
 	@Contract(pure = true)
-	default @NotNull String extractLineSeparator(@NotNull String source) {
+	default String extractLineSeparator(String source) {
 		int firstNewLineIndex = source.indexOf('\n');
 
 		if (firstNewLineIndex == -1) {
@@ -58,7 +57,7 @@ public interface HeaderComment {
 	 * @param separator the line separator to use
 	 * @return the formatted header comment
 	 */
-	@NotNull String writeHeaderComment(List<String> header, String separator);
+	String writeHeaderComment(List<String> header, String separator);
 
 	/**
 	 * Represents a header comment parsing result.
@@ -68,6 +67,6 @@ public interface HeaderComment {
 	 * @param existing the parsed header comment lines if found, or {@code null} otherwise
 	 * @param separator the line separator used in the parsed file
 	 */
-	record Result(int start, int end, @Nullable List<String> existing, @NotNull String separator) {
+	record Result(int start, int end, @Nullable List<String> existing, String separator) {
 	}
 }

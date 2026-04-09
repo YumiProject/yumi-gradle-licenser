@@ -8,13 +8,11 @@
 
 package dev.yumi.gradle.licenser.api.comment;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.io.*;
 import java.nio.file.Path;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -22,72 +20,92 @@ import java.util.Set;
  * Manages the different header comment implementations for given file types.
  *
  * @author LambdAurora
- * @version 2.0.0
+ * @version 3.0.0
  * @since 1.0.0
  */
 public class HeaderCommentManager implements Serializable {
-	private Map<Set<String>, HeaderComment> headers = new HashMap<>();
+	private Map<String, HeaderComment> headers = new HashMap<>();
 
 	public HeaderCommentManager() {
 		this.register(
-				Set.of(
-						// C/++
-						"c",
-						"cpp",
-						"cxx",
-						"h",
-						"hpp",
-						"hxx",
+				CStyleHeaderComment.INSTANCE,
+				// C/++
+				"c",
+				"cpp",
+				"cxx",
+				"h",
+				"hpp",
+				"hxx",
 
-						// Java
-						"java",
+				// Java
+				"java",
 
-						// Kotlin
-						"kt",
-						"kts",
+				// Kotlin
+				"kt",
+				"kts",
 
-						// Scala
-						"scala",
+				// Scala
+				"scala",
 
-						// Groovy
-						"groovy",
-						"gradle",
+				// Groovy
+				"groovy",
+				"gradle",
 
-						// Web languages
-						"dart", // Dart language
-						"js",   // JavaScript
-						"jsx",  // JavaScript XML
-						"ts",   // TypeScript
-						"tsx",  // TypeScript XML
+				// Web languages
+				"dart", // Dart language
+				"js",   // JavaScript
+				"jsx",  // JavaScript XML
+				"ts",   // TypeScript
+				"tsx",  // TypeScript XML
 
-						// Stylesheets
-						"css",  // CSS stylesheets
-						"less", // Less (Extended CSS)
-						"scss", // SCSS (CSS syntax for SASS)
-						"styl"  // Stylus (Alternative CSS syntax)
-				),
-				CStyleHeaderComment.INSTANCE
+				// Stylesheets
+				"css",  // CSS stylesheets
+				"less", // Less (Extended CSS)
+				"scss", // SCSS (CSS syntax for SASS)
+				"styl"  // Stylus (Alternative CSS syntax)
 		);
 
 		this.register(
-				Set.of(
-						// Web markup
-						"htm",
-						"html",
-						"xhtml",
+				XmlStyleHeaderComment.INSTANCE,
+				// Web markup
+				"htm",
+				"html",
+				"xhtml",
 
-						// Extended HTML
-						"svelte",
-						"vue",
+				// Extended HTML
+				"svelte",
+				"vue",
 
-						// Data formats
-						"xml",
+				// Data formats
+				"xml",
 
-						// Image formats
-						"svg"
-				),
-				XmlStyleHeaderComment.INSTANCE
+				// Image formats
+				"svg"
 		);
+	}
+
+	/**
+	 * Registers a header comment implementation for a given extension.
+	 *
+	 * @param extension the extension to match files for which the given header comment implementation applies
+	 * @param headerComment the header comment implementation
+	 * @since 3.0.0
+	 */
+	public void register(String extension, HeaderComment headerComment) {
+		this.headers.put(extension, headerComment);
+	}
+
+	/**
+	 * Registers a header comment implementation for a given file pattern.
+	 *
+	 * @param extensions the extensions to match files for which the given header comment implementation applies
+	 * @param headerComment the header comment implementation
+	 * @since 3.0.0
+	 */
+	public void register(HeaderComment headerComment, String... extensions) {
+		for (var extension : extensions) {
+			this.headers.put(extension, headerComment);
+		}
 	}
 
 	/**
@@ -97,8 +115,10 @@ public class HeaderCommentManager implements Serializable {
 	 * @param headerComment the header comment implementation
 	 * @since 2.0.0
 	 */
-	public void register(@NotNull Set<String> extensions, @NotNull HeaderComment headerComment) {
-		this.headers.put(extensions, headerComment);
+	public void register(Set<String> extensions, HeaderComment headerComment) {
+		for (var extension : extensions) {
+			this.headers.put(extension, headerComment);
+		}
 	}
 
 	/**
@@ -107,7 +127,7 @@ public class HeaderCommentManager implements Serializable {
 	 * @param path the file
 	 * @return the header comment implementation if a suitable one could be found, or {@code null} otherwise
 	 */
-	public @Nullable HeaderComment findHeaderComment(@NotNull Path path) {
+	public @Nullable HeaderComment findHeaderComment(Path path) {
 		var fileName = path.getFileName().toString();
 		int indexOfExtSeparator = fileName.lastIndexOf('.');
 		var fileExt = indexOfExtSeparator >= 0 ? fileName.substring(indexOfExtSeparator + 1).toLowerCase() : "";
@@ -126,10 +146,7 @@ public class HeaderCommentManager implements Serializable {
 		out.writeInt(this.headers.size());
 
 		for (var entry : this.headers.entrySet()) {
-			out.writeInt(entry.getKey().size());
-			for (var ext : entry.getKey()) {
-				out.writeUTF(ext);
-			}
+			out.writeUTF(entry.getKey());
 
 			if (entry.getValue() instanceof CStyleHeaderComment) {
 				out.writeUTF("c_style");
@@ -144,16 +161,11 @@ public class HeaderCommentManager implements Serializable {
 
 	@Serial
 	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		var map = new HashMap<Set<String>, HeaderComment>();
+		var map = new HashMap<String, HeaderComment>();
 		int entries = in.readInt();
 
 		for (int i = 0; i < entries; i++) {
-			int extensionsLength = in.readInt();
-			var extensions = new HashSet<String>(extensionsLength);
-
-			for (int j = 0; j < extensionsLength; j++) {
-				extensions.add(in.readUTF());
-			}
+			var extension = in.readUTF();
 
 			HeaderComment comment = switch (in.readUTF()) {
 				case "c_style" -> CStyleHeaderComment.INSTANCE;
@@ -161,7 +173,7 @@ public class HeaderCommentManager implements Serializable {
 				default -> (HeaderComment) in.readObject();
 			};
 
-			map.put(Set.copyOf(extensions), comment);
+			map.put(extension, comment);
 		}
 
 		this.headers = map;

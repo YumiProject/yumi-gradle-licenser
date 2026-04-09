@@ -9,7 +9,6 @@
 package dev.yumi.gradle.licenser.api.comment;
 
 import dev.yumi.gradle.licenser.util.Utils;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +30,7 @@ public final class CStyleHeaderComment implements HeaderComment {
 	private CStyleHeaderComment() {}
 
 	@Override
-	public @NotNull Result readHeaderComment(@NotNull String source) {
+	public Result readHeaderComment(String source) {
 		int start = 0, end;
 		String found = null;
 
@@ -92,7 +91,7 @@ public final class CStyleHeaderComment implements HeaderComment {
 	}
 
 	@Override
-	public @NotNull String writeHeaderComment(List<String> header, String separator) {
+	public String writeHeaderComment(List<String> header, String separator) {
 		var builder = new StringBuilder("/*").append(separator);
 
 		for (var line : header) {
