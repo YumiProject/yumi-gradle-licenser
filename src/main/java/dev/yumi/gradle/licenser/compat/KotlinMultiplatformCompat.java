@@ -63,13 +63,11 @@ public final class KotlinMultiplatformCompat {
 				}
 
 				project.getTasks().register(
-						getTaskName("check", name), CheckLicenseTask.class,
-						ext
-				).configure(CheckLicenseTask.configureDefault(ext, project, kotlinSet, name));
+						getTaskName("check", name), CheckLicenseTask.class
+				).configure(CheckLicenseTask.configureDefault(ext, kotlinSet, name));
 				project.getTasks().register(
-						getTaskName("apply", name), ApplyLicenseTask.class,
-						ext
-				).configure(ApplyLicenseTask.configureDefault(ext, project, kotlinSet, name));
+						getTaskName("apply", name), ApplyLicenseTask.class
+				).configure(ApplyLicenseTask.configureDefault(ext, kotlinSet, name));
 			} catch (Throwable e) {
 				throw new RuntimeException(e);
 			}

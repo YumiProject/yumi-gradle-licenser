@@ -20,6 +20,7 @@ import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
+import org.jspecify.annotations.NullMarked;
 
 /**
  * Represents the Yumi Licenser Gradle plugin.
@@ -50,13 +51,11 @@ public class YumiLicenserGradlePlugin implements Plugin<Project> {
 			sourceSets.matching(sourceSet -> !ext.isSourceSetExcluded(sourceSet))
 					.all(sourceSet -> {
 						project.getTasks().register(
-								getTaskName("check", sourceSet), CheckLicenseTask.class,
-								ext
-						).configure(CheckLicenseTask.configureDefault(ext, project, sourceSet.getAllSource(), sourceSet.getName()));
+								getTaskName("check", sourceSet), CheckLicenseTask.class
+						).configure(CheckLicenseTask.configureDefault(ext, sourceSet.getAllSource(), sourceSet.getName()));
 						project.getTasks().register(
-								getTaskName("apply", sourceSet), ApplyLicenseTask.class,
-								ext
-						).configure(ApplyLicenseTask.configureDefault(ext, project, sourceSet.getAllSource(), sourceSet.getName()));
+								getTaskName("apply", sourceSet), ApplyLicenseTask.class
+						).configure(ApplyLicenseTask.configureDefault(ext, sourceSet.getAllSource(), sourceSet.getName()));
 					});
 		});
 

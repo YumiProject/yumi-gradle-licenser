@@ -14,7 +14,6 @@ import dev.yumi.gradle.licenser.task.work.ApplyLicenseWorkAction;
 import dev.yumi.gradle.licenser.task.work.ApplyLicenseWorkAction.ApplyReportDetails;
 import dev.yumi.gradle.licenser.task.work.LicenseWorkAction.Report;
 import org.gradle.api.Action;
-import org.gradle.api.Project;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.UntrackedTask;
@@ -38,15 +37,15 @@ import java.util.stream.StreamSupport;
  * Represents the task that applies license headers to project files.
  *
  * @author LambdAurora
- * @version 2.2.1
+ * @version 3.0.0
  * @since 1.0.0
  */
 @ApiStatus.Internal
 @UntrackedTask(because = "Task may rewrite the input files.")
 public abstract class ApplyLicenseTask extends SourceDirectoryBasedTask {
 	@Inject
-	public ApplyLicenseTask(YumiLicenserGradleExtension extension) {
-		super(extension);
+	public ApplyLicenseTask() {
+		super();
 		this.setDescription("Applies the correct license headers to source files.");
 		this.setGroup("generation");
 
@@ -62,7 +61,7 @@ public abstract class ApplyLicenseTask extends SourceDirectoryBasedTask {
 	@TaskAction
 	public void execute() throws IOException, ClassNotFoundException, NoSuchAlgorithmException {
 		var workQueue = this.getWorkerExecutor().noIsolation();
-		var files = StreamSupport.stream(this.getSourceFiles().spliterator(), false).toList();
+		var files = StreamSupport.stream(this.getEffectiveSourceFiles().spliterator(), false).toList();
 
 		var tempDir = Files.createTempDirectory("yumi-gradle-licenser-workers-");
 		var reportPaths = new LinkedHashMap<Path, Path>();
@@ -134,7 +133,6 @@ public abstract class ApplyLicenseTask extends SourceDirectoryBasedTask {
 	 * Configures an apply task with default values.
 	 *
 	 * @param ext the licenser extension
-	 * @param project the project
 	 * @param sourceSet the source set of the files to apply to
 	 * @param sourceSetName the name of the source set
 	 * @return the configuration action
@@ -142,7 +140,6 @@ public abstract class ApplyLicenseTask extends SourceDirectoryBasedTask {
 	 */
 	public static Action<? super ApplyLicenseTask> configureDefault(
 			YumiLicenserGradleExtension ext,
-			Project project,
 			SourceDirectorySet sourceSet,
 			String sourceSetName
 	) {
@@ -151,18 +148,7 @@ public abstract class ApplyLicenseTask extends SourceDirectoryBasedTask {
 					+ sourceSet.getName()
 					+ " source set."
 			);
-			task.getSourceFiles().from(
-					SourceDirectoryBasedTask.extractFromSourceSet(
-							ext,
-							project.getLayout().getBuildDirectory().get().getAsFile().toPath(),
-							sourceSet
-					)
-			);
-			task.getReportFile().fileValue(
-					project.getLayout().getBuildDirectory().get().getAsFile().toPath()
-							.resolve("yumi/licenser/apply_report_" + sourceSetName + ".txt")
-							.toFile()
-			);
+			task.getSourceFiles().from(sourceSet.matching(ext.asPatternFilterable()));
 			boolean excluded = ext.isSourceSetExcluded(sourceSetName);
 			task.onlyIf(t -> !excluded);
 		};

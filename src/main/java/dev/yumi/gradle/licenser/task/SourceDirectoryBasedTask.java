@@ -15,34 +15,45 @@ import dev.yumi.gradle.licenser.impl.LicenseHeader;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.file.ConfigurableFileCollection;
+import org.gradle.api.file.Directory;
 import org.gradle.api.file.RegularFileProperty;
-import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.*;
 import org.jetbrains.annotations.ApiStatus;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Set;
 import java.util.stream.Stream;
 
 /**
  * Represents a task that acts on a given source directory set.
  *
  * @author LambdAurora
- * @version 2.1.0
+ * @version 3.0.0
  * @since 1.0.0
  */
 @ApiStatus.Internal
 public abstract class SourceDirectoryBasedTask extends DefaultTask {
-	protected SourceDirectoryBasedTask(YumiLicenserGradleExtension extension) {
+	protected SourceDirectoryBasedTask() {
+		var extension = this.getProject().getExtensions().getByType(YumiLicenserGradleExtension.class);
+
 		this.getLicenseHeader().convention(extension.getLicenseHeader());
 		this.getHeaderCommentManager().convention(extension.getHeaderCommentManager());
 		this.getRootDirectory().convention(this.getProject().getRootDir().toString());
 		this.getProjectDirectory().convention(this.getProject().getProjectDir().toString());
 		this.getProjectCreationYear().convention(extension.getProjectCreationYear());
-		this.getBuildDirectory().convention(this.getProject().getLayout().getBuildDirectory().get().toString());
+
+		var buildDir = this.getProject().getLayout().getBuildDirectory();
+
+		this.getBuildDirectory().convention(buildDir.map(Directory::toString));
+		this.getReportFile().convention(buildDir.file("yumi/licenser/" + this.getName() + "_report.txt"));
+
+		this.getEffectiveSourceFiles().convention(this.getSourceFiles()
+				.filter(file -> {
+					boolean excludeBuildDir = extension.getExcludeBuildDirectory().get();
+					return !excludeBuildDir || !file.toPath().startsWith(buildDir.get().getAsFile().toPath());
+				})
+		);
 	}
 
 	/**
@@ -51,7 +62,17 @@ public abstract class SourceDirectoryBasedTask extends DefaultTask {
 	@InputFiles
 	@SkipWhenEmpty
 	@IgnoreEmptyDirectories
+	@PathSensitive(PathSensitivity.RELATIVE)
 	public abstract ConfigurableFileCollection getSourceFiles();
+
+	/**
+	 * {@return the effective source files property that will be affected by this task}
+	 */
+	@InputFiles
+	@SkipWhenEmpty
+	@IgnoreEmptyDirectories
+	@PathSensitive(PathSensitivity.RELATIVE)
+	protected abstract ConfigurableFileCollection getEffectiveSourceFiles();
 
 	/**
 	 * {@return the license header property to use for this task}
@@ -125,14 +146,5 @@ public abstract class SourceDirectoryBasedTask extends DefaultTask {
 		});
 
 		consumer.end(this.getLogger());
-	}
-
-	public static Set<File> extractFromSourceSet(YumiLicenserGradleExtension ext, Path buildPath, SourceDirectorySet sourceDirectorySet) {
-		boolean excludeBuildDir = ext.getExcludeBuildDirectory().get();
-		return sourceDirectorySet
-				.matching(ext.asPatternFilterable())
-				// Exclude the build directory unless it's forcefully included.
-				.filter(file -> !excludeBuildDir || !file.toPath().startsWith(buildPath))
-				.getFiles();
 	}
 }

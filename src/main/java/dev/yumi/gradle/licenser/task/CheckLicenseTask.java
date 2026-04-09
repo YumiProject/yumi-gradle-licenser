@@ -14,7 +14,6 @@ import dev.yumi.gradle.licenser.impl.LicenseHeader;
 import dev.yumi.gradle.licenser.impl.ValidationError;
 import org.gradle.api.Action;
 import org.gradle.api.GradleException;
-import org.gradle.api.Project;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.tasks.TaskAction;
@@ -36,14 +35,14 @@ import java.util.stream.StreamSupport;
  * Represents a task that checks the validity of license headers in project files.
  *
  * @author LambdAurora
- * @version 2.1.0
+ * @version 3.0.0
  * @since 1.0.0
  */
 @ApiStatus.Internal
 public abstract class CheckLicenseTask extends SourceDirectoryBasedTask {
 	@Inject
-	public CheckLicenseTask(YumiLicenserGradleExtension extension) {
-		super(extension);
+	public CheckLicenseTask() {
+		super();
 		this.setDescription("Checks whether source files contain a valid license header.");
 		this.setGroup("verification");
 
@@ -57,7 +56,7 @@ public abstract class CheckLicenseTask extends SourceDirectoryBasedTask {
 		this.execute(
 				this.getHeaderCommentManager().get(),
 				StreamSupport.stream(
-								inputChanges.getFileChanges(this.getSourceFiles()).spliterator(),
+								inputChanges.getFileChanges(this.getEffectiveSourceFiles()).spliterator(),
 								false
 						).filter(action -> action.getChangeType() != ChangeType.REMOVED)
 						.map(FileChange::getFile)
@@ -70,7 +69,6 @@ public abstract class CheckLicenseTask extends SourceDirectoryBasedTask {
 	 * Configures a check task with default values.
 	 *
 	 * @param ext the licenser extension
-	 * @param project the project
 	 * @param sourceSet the source set of the files to check
 	 * @param sourceSetName the name of the source set
 	 * @return the configuration action
@@ -78,7 +76,6 @@ public abstract class CheckLicenseTask extends SourceDirectoryBasedTask {
 	 */
 	public static Action<? super CheckLicenseTask> configureDefault(
 			YumiLicenserGradleExtension ext,
-			Project project,
 			SourceDirectorySet sourceSet,
 			String sourceSetName
 	) {
@@ -87,18 +84,7 @@ public abstract class CheckLicenseTask extends SourceDirectoryBasedTask {
 					+ sourceSet.getName()
 					+ " source set contain a valid license header."
 			);
-			task.getSourceFiles().from(
-					SourceDirectoryBasedTask.extractFromSourceSet(
-							ext,
-							project.getLayout().getBuildDirectory().get().getAsFile().toPath(),
-							sourceSet
-					)
-			);
-			task.getReportFile().fileValue(
-					project.getLayout().getBuildDirectory().get().getAsFile().toPath()
-							.resolve("yumi/licenser/check_report_" + sourceSetName + ".txt")
-							.toFile()
-			);
+			task.getSourceFiles().from(sourceSet.matching(ext.asPatternFilterable()));
 			boolean excluded = ext.isSourceSetExcluded(sourceSetName);
 			task.onlyIf(t -> !excluded);
 		};

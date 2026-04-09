@@ -27,7 +27,6 @@ import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.util.PatternFilterable;
 import org.gradle.api.tasks.util.PatternSet;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -126,7 +125,7 @@ public class YumiLicenserGradleExtension implements PatternFilterable {
 	 *
 	 * @param header the file
 	 */
-	public void rule(@NotNull Object header) {
+	public void rule(Object header) {
 		String name;
 		List<String> lines;
 
@@ -177,7 +176,7 @@ public class YumiLicenserGradleExtension implements PatternFilterable {
 	 * {@return the header comment manager to attach header comment to specific file formats}
 	 */
 	@Contract(pure = true)
-	public @NotNull HeaderCommentManager getHeaderCommentManager() {
+	public HeaderCommentManager getHeaderCommentManager() {
 		return this.headerCommentManager;
 	}
 
@@ -198,81 +197,81 @@ public class YumiLicenserGradleExtension implements PatternFilterable {
 	}
 
 	@Override
-	public @NotNull Set<String> getIncludes() {
+	public Set<String> getIncludes() {
 		return this.patternFilterable.getIncludes();
 	}
 
 	@Override
-	public @NotNull Set<String> getExcludes() {
+	public Set<String> getExcludes() {
 		return this.patternFilterable.getExcludes();
 	}
 
 	@Contract("_ -> this")
 	@Override
-	public @NotNull YumiLicenserGradleExtension setIncludes(@NotNull Iterable<String> includes) {
+	public YumiLicenserGradleExtension setIncludes(Iterable<String> includes) {
 		this.patternFilterable.setIncludes(includes);
 		return this;
 	}
 
 	@Contract("_ -> this")
 	@Override
-	public @NotNull YumiLicenserGradleExtension setExcludes(@NotNull Iterable<String> excludes) {
+	public YumiLicenserGradleExtension setExcludes(Iterable<String> excludes) {
 		this.patternFilterable.setExcludes(excludes);
 		return this;
 	}
 
 	@Contract("_ -> this")
 	@Override
-	public @NotNull YumiLicenserGradleExtension include(String @NotNull ... includes) {
+	public YumiLicenserGradleExtension include(String... includes) {
 		this.patternFilterable.include(includes);
 		return this;
 	}
 
 	@Contract("_ -> this")
 	@Override
-	public @NotNull YumiLicenserGradleExtension include(@NotNull Iterable<String> includes) {
+	public YumiLicenserGradleExtension include(Iterable<String> includes) {
 		this.patternFilterable.include(includes);
 		return this;
 	}
 
 	@Contract("_ -> this")
 	@Override
-	public @NotNull YumiLicenserGradleExtension include(@NotNull Spec<FileTreeElement> includeSpec) {
+	public YumiLicenserGradleExtension include(Spec<FileTreeElement> includeSpec) {
 		this.patternFilterable.include(includeSpec);
 		return this;
 	}
 
 	@Contract("_ -> this")
 	@Override
-	public @NotNull YumiLicenserGradleExtension include(@NotNull Closure includeSpec) {
+	public YumiLicenserGradleExtension include(Closure includeSpec) {
 		this.patternFilterable.include(includeSpec);
 		return this;
 	}
 
 	@Contract("_ -> this")
 	@Override
-	public @NotNull YumiLicenserGradleExtension exclude(String @NotNull ... excludes) {
+	public YumiLicenserGradleExtension exclude(String... excludes) {
 		this.patternFilterable.exclude(excludes);
 		return this;
 	}
 
 	@Contract("_ -> this")
 	@Override
-	public @NotNull YumiLicenserGradleExtension exclude(Iterable<String> excludes) {
+	public YumiLicenserGradleExtension exclude(Iterable<String> excludes) {
 		this.patternFilterable.exclude(excludes);
 		return this;
 	}
 
 	@Contract("_ -> this")
 	@Override
-	public @NotNull YumiLicenserGradleExtension exclude(@NotNull Spec<FileTreeElement> excludeSpec) {
+	public YumiLicenserGradleExtension exclude(Spec<FileTreeElement> excludeSpec) {
 		this.patternFilterable.exclude(excludeSpec);
 		return this;
 	}
 
 	@Contract("_ -> this")
 	@Override
-	public @NotNull YumiLicenserGradleExtension exclude(@NotNull Closure excludeSpec) {
+	public YumiLicenserGradleExtension exclude(Closure excludeSpec) {
 		this.patternFilterable.exclude(excludeSpec);
 		return this;
 	}
@@ -286,7 +285,7 @@ public class YumiLicenserGradleExtension implements PatternFilterable {
 	 * @since 1.1.0
 	 */
 	@Contract("_ -> this")
-	public @NotNull YumiLicenserGradleExtension excludeSourceSet(@NotNull String sourceSetName) {
+	public YumiLicenserGradleExtension excludeSourceSet(String sourceSetName) {
 		this.excludedSourceSets.add(sourceSetName);
 		return this;
 	}
@@ -299,7 +298,7 @@ public class YumiLicenserGradleExtension implements PatternFilterable {
 	 * @see #excludeSourceSet(String)
 	 */
 	@Contract("_ -> this")
-	public @NotNull YumiLicenserGradleExtension exclude(@NotNull SourceSet sourceSet) {
+	public YumiLicenserGradleExtension exclude(SourceSet sourceSet) {
 		return this.excludeSourceSet(sourceSet.getName());
 	}
 
@@ -330,7 +329,7 @@ public class YumiLicenserGradleExtension implements PatternFilterable {
 	 * @since 1.1.2
 	 */
 	@Contract(pure = true)
-	public @NotNull Property<Boolean> getExcludeBuildDirectory() {
+	public Property<Boolean> getExcludeBuildDirectory() {
 		return this.excludeBuildDirectory;
 	}
 }

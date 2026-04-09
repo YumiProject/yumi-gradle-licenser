@@ -18,6 +18,7 @@ repositories {
 val functionalTest: SourceSet by sourceSets.creating
 
 dependencies {
+	compileOnly(libs.jspecify)
 	compileOnly(libs.jetbrains.annotations)
 	api(libs.jgit)
 	// Use JUnit Jupiter for testing.
