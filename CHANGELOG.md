@@ -56,4 +56,10 @@
 
 - Fixed `StackOverflowError` with Gradle 9.3.
 
+## 3.0.0
+
+- Refactored task registration.
+  - Added `registerTasks` methods in extension to easily register check/apply tasks for given source files regardless of source set.
+  - Lowered reliance over source sets, abstracting further away.
+
 [#3]: https://github.com/YumiProject/yumi-gradle-licenser/pull/3

@@ -8,13 +8,10 @@
 
 package dev.yumi.gradle.licenser.task;
 
-import dev.yumi.gradle.licenser.YumiLicenserGradleExtension;
 import dev.yumi.gradle.licenser.YumiLicenserGradlePlugin;
 import dev.yumi.gradle.licenser.task.work.ApplyLicenseWorkAction;
 import dev.yumi.gradle.licenser.task.work.ApplyLicenseWorkAction.ApplyReportDetails;
 import dev.yumi.gradle.licenser.task.work.LicenseWorkAction.Report;
-import org.gradle.api.Action;
-import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.UntrackedTask;
 import org.gradle.workers.WorkerExecutor;
@@ -127,30 +124,5 @@ public abstract class ApplyLicenseTask extends SourceDirectoryBasedTask {
 			Files.delete(path);
 		}
 		Files.delete(tempDir);
-	}
-
-	/**
-	 * Configures an apply task with default values.
-	 *
-	 * @param ext the licenser extension
-	 * @param sourceSet the source set of the files to apply to
-	 * @param sourceSetName the name of the source set
-	 * @return the configuration action
-	 * @since 2.0.0
-	 */
-	public static Action<? super ApplyLicenseTask> configureDefault(
-			YumiLicenserGradleExtension ext,
-			SourceDirectorySet sourceSet,
-			String sourceSetName
-	) {
-		return task -> {
-			task.setDescription("Applies the correct license headers to source files in the "
-					+ sourceSet.getName()
-					+ " source set."
-			);
-			task.getSourceFiles().from(sourceSet.matching(ext.asPatternFilterable()));
-			boolean excluded = ext.isSourceSetExcluded(sourceSetName);
-			task.onlyIf(t -> !excluded);
-		};
 	}
 }

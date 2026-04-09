@@ -10,8 +10,6 @@ package dev.yumi.gradle.licenser.compat;
 
 import dev.yumi.gradle.licenser.YumiLicenserGradleExtension;
 import dev.yumi.gradle.licenser.YumiLicenserGradlePlugin;
-import dev.yumi.gradle.licenser.task.ApplyLicenseTask;
-import dev.yumi.gradle.licenser.task.CheckLicenseTask;
 import dev.yumi.gradle.licenser.util.Utils;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Project;
@@ -27,7 +25,7 @@ import java.lang.invoke.MethodHandles;
  * No direct reference to the Kotlin multiplatform plugin is made due to classloader isolation issues.
  *
  * @author LambdAurora
- * @version 2.2.0
+ * @version 3.0.0
  * @since 1.1.0
  */
 @ApiStatus.Internal
@@ -62,12 +60,11 @@ public final class KotlinMultiplatformCompat {
 					return; // Is a regular source set, we ignore.
 				}
 
-				project.getTasks().register(
-						getTaskName("check", name), CheckLicenseTask.class
-				).configure(CheckLicenseTask.configureDefault(ext, kotlinSet, name));
-				project.getTasks().register(
-						getTaskName("apply", name), ApplyLicenseTask.class
-				).configure(ApplyLicenseTask.configureDefault(ext, kotlinSet, name));
+				ext.registerTasks(name, task -> {
+					task.getSourceFiles().from(kotlinSet.matching(ext.asPatternFilterable()));
+					boolean excluded = ext.isSourceSetExcluded(name);
+					task.onlyIf(t -> !excluded);
+				});
 			} catch (Throwable e) {
 				throw new RuntimeException(e);
 			}

@@ -8,13 +8,10 @@
 
 package dev.yumi.gradle.licenser.task;
 
-import dev.yumi.gradle.licenser.YumiLicenserGradleExtension;
 import dev.yumi.gradle.licenser.api.comment.HeaderComment;
 import dev.yumi.gradle.licenser.impl.LicenseHeader;
 import dev.yumi.gradle.licenser.impl.ValidationError;
-import org.gradle.api.Action;
 import org.gradle.api.GradleException;
-import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.work.ChangeType;
@@ -63,31 +60,6 @@ public abstract class CheckLicenseTask extends SourceDirectoryBasedTask {
 						.map(File::toPath),
 				new Consumer(this.getLicenseHeader().get())
 		);
-	}
-
-	/**
-	 * Configures a check task with default values.
-	 *
-	 * @param ext the licenser extension
-	 * @param sourceSet the source set of the files to check
-	 * @param sourceSetName the name of the source set
-	 * @return the configuration action
-	 * @since 2.0.0
-	 */
-	public static Action<? super CheckLicenseTask> configureDefault(
-			YumiLicenserGradleExtension ext,
-			SourceDirectorySet sourceSet,
-			String sourceSetName
-	) {
-		return task -> {
-			task.setDescription("Checks whether source files in the "
-					+ sourceSet.getName()
-					+ " source set contain a valid license header."
-			);
-			task.getSourceFiles().from(sourceSet.matching(ext.asPatternFilterable()));
-			boolean excluded = ext.isSourceSetExcluded(sourceSetName);
-			task.onlyIf(t -> !excluded);
-		};
 	}
 
 	class Consumer implements SourceConsumer {

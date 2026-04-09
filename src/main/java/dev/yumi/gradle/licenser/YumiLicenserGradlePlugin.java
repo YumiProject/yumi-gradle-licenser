@@ -20,13 +20,12 @@ import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
-import org.jspecify.annotations.NullMarked;
 
 /**
  * Represents the Yumi Licenser Gradle plugin.
  *
  * @author LambdAurora
- * @version 2.0.0
+ * @version 3.0.0
  * @since 1.0.0
  */
 public class YumiLicenserGradlePlugin implements Plugin<Project> {
@@ -50,12 +49,11 @@ public class YumiLicenserGradlePlugin implements Plugin<Project> {
 
 			sourceSets.matching(sourceSet -> !ext.isSourceSetExcluded(sourceSet))
 					.all(sourceSet -> {
-						project.getTasks().register(
-								getTaskName("check", sourceSet), CheckLicenseTask.class
-						).configure(CheckLicenseTask.configureDefault(ext, sourceSet.getAllSource(), sourceSet.getName()));
-						project.getTasks().register(
-								getTaskName("apply", sourceSet), ApplyLicenseTask.class
-						).configure(ApplyLicenseTask.configureDefault(ext, sourceSet.getAllSource(), sourceSet.getName()));
+						ext.registerTasks(sourceSet.getName(), task -> {
+							task.getSourceFiles().from(sourceSet.getAllSource().matching(ext.asPatternFilterable()));
+							boolean excluded = ext.isSourceSetExcluded(sourceSet.getName());
+							task.onlyIf(t -> !excluded);
+						});
 					});
 		});
 

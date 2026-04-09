@@ -12,18 +12,25 @@ import dev.yumi.gradle.licenser.api.comment.HeaderCommentManager;
 import dev.yumi.gradle.licenser.api.rule.HeaderParseException;
 import dev.yumi.gradle.licenser.api.rule.HeaderRule;
 import dev.yumi.gradle.licenser.impl.LicenseHeader;
+import dev.yumi.gradle.licenser.task.ApplyLicenseTask;
+import dev.yumi.gradle.licenser.task.CheckLicenseTask;
+import dev.yumi.gradle.licenser.task.SourceDirectoryBasedTask;
 import dev.yumi.gradle.licenser.util.Utils;
 import groovy.lang.Closure;
 import groovy.lang.Delegate;
 import groovy.transform.PackageScope;
+import org.eclipse.jgit.util.StringUtils;
+import org.gradle.api.Action;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
+import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileTreeElement;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.resources.TextResourceFactory;
 import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.SourceSet;
+import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.util.PatternFilterable;
 import org.gradle.api.tasks.util.PatternSet;
 import org.jetbrains.annotations.Contract;
@@ -40,10 +47,10 @@ import java.util.Set;
  * Represents the Yumi Licenser Gradle extension to configure the plugin in buildscripts.
  *
  * @author LambdAurora
- * @version 1.1.2
+ * @version 3.0.0
  * @since 1.0.0
  */
-public class YumiLicenserGradleExtension implements PatternFilterable {
+public abstract class YumiLicenserGradleExtension implements PatternFilterable {
 	//region Properties
 
 	@PackageScope
@@ -119,6 +126,9 @@ public class YumiLicenserGradleExtension implements PatternFilterable {
 		this.excludeBuildDirectory = objects.property(Boolean.class)
 				.convention(true);
 	}
+
+	@Inject
+	protected abstract TaskContainer getTasks();
 
 	/**
 	 * Adds a rule from a file.
@@ -331,5 +341,63 @@ public class YumiLicenserGradleExtension implements PatternFilterable {
 	@Contract(pure = true)
 	public Property<Boolean> getExcludeBuildDirectory() {
 		return this.excludeBuildDirectory;
+	}
+
+	/**
+	 * Registers check and apply licenses tasks with the given name, for a given collection of source files.
+	 *
+	 * @param name the name of the pair of tasks to register
+	 * @param sourceFiles the source files
+	 * @see #registerTasks(String, FileCollection)
+	 * @see #registerTasks(String, Action)
+	 * @since 3.0.0
+	 */
+	public void registerTasks(String name, Object... sourceFiles) {
+		this.registerTasks(name, task -> task.getSourceFiles().from(sourceFiles));
+	}
+
+	/**
+	 * Registers check and apply licenses tasks with the given name, for a given collection of source files.
+	 *
+	 * @param name the name of the pair of tasks to register
+	 * @param sourceFiles the source files
+	 * @see #registerTasks(String, Object...)
+	 * @see #registerTasks(String, Action)
+	 * @since 3.0.0
+	 */
+	public void registerTasks(String name, FileCollection sourceFiles) {
+		this.registerTasks(name, task -> task.getSourceFiles().from(sourceFiles));
+	}
+
+	/**
+	 * Registers check and apply licenses tasks with the given name, configured using the provided action.
+	 *
+	 * @param name the name of the pair of tasks to register
+	 * @param action the configuration action
+	 * @see #registerTasks(String, Object...)
+	 * @see #registerTasks(String, FileCollection)
+	 * @since 3.0.0
+	 */
+	public void registerTasks(String name, Action<SourceDirectoryBasedTask> action) {
+		var checkTask = this.getTasks().register(this.getTaskName("check", name), CheckLicenseTask.class);
+		checkTask.configure(task -> {
+			task.setDescription("Checks whether source files in the " + name + " source set contain a valid license header.");
+			action.execute(task);
+		});
+		var applyTask = this.getTasks().register(this.getTaskName("apply", name), ApplyLicenseTask.class);
+		applyTask.configure(task -> {
+			task.setDescription("Applies the correct license headers to source files in the " + name + " source set.");
+			action.execute(task);
+		});
+	}
+
+	/**
+	 * {@return the task name of a given action for a given source set name}
+	 *
+	 * @param action the task action
+	 * @param name the name of the source set
+	 */
+	private String getTaskName(String action, String name) {
+		return action + YumiLicenserGradlePlugin.LICENSE_TASK_SUFFIX + StringUtils.capitalize(name);
 	}
 }
