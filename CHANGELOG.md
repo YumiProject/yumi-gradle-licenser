@@ -64,5 +64,9 @@
 - Added a way to override header comment implementation for existing formats.
   - While not a full fix for [#9], it at least gives a way for custom solutions until a proper resolution is found.
 
+### 3.0.1
+
+- Fixed `HeaderCommentManager#findHeaderComment` not properly matching extensions following a refactor.
+
 [#3]: https://github.com/YumiProject/yumi-gradle-licenser/pull/3
 [#9]: https://github.com/YumiProject/yumi-gradle-licenser/issues/9

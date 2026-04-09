@@ -133,7 +133,7 @@ public class HeaderCommentManager implements Serializable {
 		var fileExt = indexOfExtSeparator >= 0 ? fileName.substring(indexOfExtSeparator + 1).toLowerCase() : "";
 
 		for (var entry : this.headers.entrySet()) {
-			if (entry.getKey().contains(fileExt)) {
+			if (entry.getKey().equals(fileExt)) {
 				return entry.getValue();
 			}
 		}
