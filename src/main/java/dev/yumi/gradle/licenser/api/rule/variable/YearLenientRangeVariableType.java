@@ -10,8 +10,7 @@ package dev.yumi.gradle.licenser.api.rule.variable;
 
 import dev.yumi.gradle.licenser.api.rule.HeaderFileContext;
 import dev.yumi.gradle.licenser.util.Utils;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -32,7 +31,7 @@ public class YearLenientRangeVariableType implements VariableType<int[]> {
 	public static final YearLenientRangeVariableType INSTANCE = new YearLenientRangeVariableType();
 
 	@Override
-	public @NotNull Optional<ParseResult<int[]>> parseVar(@NotNull String input, int start) {
+	public Optional<ParseResult<int[]>> parseVar(String input, int start) {
 		int firstYearEnd = Utils.findInteger(input, start);
 
 		if (firstYearEnd == -1) {
@@ -58,7 +57,7 @@ public class YearLenientRangeVariableType implements VariableType<int[]> {
 	}
 
 	@Override
-	public @NotNull String getAsString(int @NotNull [] value) {
+	public String getAsString(int[] value) {
 		String start = String.valueOf(value[0]);
 
 		if (value.length > 1) {
@@ -69,7 +68,7 @@ public class YearLenientRangeVariableType implements VariableType<int[]> {
 	}
 
 	@Override
-	public int @NotNull [] getUpToDate(@NotNull HeaderFileContext context, int @Nullable [] old) {
+	public int[] getUpToDate(HeaderFileContext context, int @Nullable [] old) {
 		int modifiedYear = context.lastModifiedYear();
 
 		if (old != null) {

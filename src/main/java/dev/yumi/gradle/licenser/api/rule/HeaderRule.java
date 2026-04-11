@@ -14,9 +14,8 @@ import dev.yumi.gradle.licenser.api.rule.token.VarToken;
 import dev.yumi.gradle.licenser.api.rule.variable.VariableType;
 import dev.yumi.gradle.licenser.util.Utils;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
+import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 
@@ -34,10 +33,10 @@ public class HeaderRule {
 	private final LicenseYearSelectionMode yearSelectionMode;
 
 	public HeaderRule(
-			@NotNull String name,
-			@NotNull List<HeaderLine> lines,
-			@NotNull Map<String, VariableType<?>> variables,
-			@NotNull LicenseYearSelectionMode yearSelectionMode
+			String name,
+			List<HeaderLine> lines,
+			Map<String, VariableType<?>> variables,
+			LicenseYearSelectionMode yearSelectionMode
 	) {
 		this.name = name;
 		this.lines = lines;
@@ -49,7 +48,7 @@ public class HeaderRule {
 	 * {@return the name of this header rule}
 	 */
 	@Contract(pure = true)
-	public @NotNull String getName() {
+	public String getName() {
 		return this.name;
 	}
 
@@ -57,7 +56,7 @@ public class HeaderRule {
 	 * {@return a view of the lines of this header}
 	 */
 	@Contract(pure = true)
-	public @UnmodifiableView @NotNull List<HeaderLine> getLines() {
+	public @UnmodifiableView List<HeaderLine> getLines() {
 		return Collections.unmodifiableList(this.lines);
 	}
 
@@ -67,7 +66,7 @@ public class HeaderRule {
 	 * @since 2.0.0
 	 */
 	@Contract(pure = true)
-	public @UnmodifiableView @NotNull Map<String, VariableType<?>> getVariables() {
+	public @UnmodifiableView Map<String, VariableType<?>> getVariables() {
 		return Collections.unmodifiableMap(this.variables);
 	}
 
@@ -75,7 +74,7 @@ public class HeaderRule {
 	 * {@return the year selection mode}
 	 */
 	@Contract(pure = true)
-	public @NotNull LicenseYearSelectionMode getYearSelectionMode() {
+	public LicenseYearSelectionMode getYearSelectionMode() {
 		return this.yearSelectionMode;
 	}
 
@@ -85,7 +84,7 @@ public class HeaderRule {
 	 * @param header the header to check
 	 * @return parsed data, contain the successfully parsed variables, and the error if parsing failed
 	 */
-	public @NotNull ParsedData parseHeader(@NotNull List<String> header) {
+	public ParsedData parseHeader(List<String> header) {
 		var variableValues = new HashMap<String, Object>();
 		var presentOptionalLines = new HashSet<Integer>();
 		int headerLineIndex = 0, ruleLineIndex = 0;
@@ -118,9 +117,9 @@ public class HeaderRule {
 	}
 
 	private @Nullable String parseLine(
-			@NotNull String headerLine,
-			@NotNull HeaderLine currentLine,
-			@NotNull Map<String, Object> variablesMap
+			String headerLine,
+			HeaderLine currentLine,
+			Map<String, Object> variablesMap
 	) {
 		int currentIndex = 0;
 
@@ -172,7 +171,7 @@ public class HeaderRule {
 	 * @return the updated header comment
 	 */
 	@SuppressWarnings({"rawtypes", "unchecked"})
-	public @NotNull List<String> apply(@NotNull ParsedData data, @NotNull HeaderFileContext context) {
+	public List<String> apply(ParsedData data, HeaderFileContext context) {
 		var result = new ArrayList<String>();
 
 		for (int i = 0; i < this.lines.size(); i++) {
@@ -204,7 +203,7 @@ public class HeaderRule {
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(@Nullable Object o) {
 		if (this == o) return true;
 		if (o == null || this.getClass() != o.getClass()) return false;
 		HeaderRule that = (HeaderRule) o;
@@ -231,7 +230,7 @@ public class HeaderRule {
 	 * @return the parsed header rule
 	 * @throws HeaderParseException if parsing the header rule fails
 	 */
-	public static @NotNull HeaderRule parse(@NotNull String name, @NotNull List<String> raw) throws HeaderParseException {
+	public static HeaderRule parse(String name, List<String> raw) throws HeaderParseException {
 		List<HeaderLine> parsed = new ArrayList<>();
 		var variables = new HashMap<String, VariableType<?>>();
 		var yearSelectionMode = LicenseYearSelectionMode.PROJECT;
@@ -335,7 +334,7 @@ public class HeaderRule {
 	 * @param optional {@code true} if the line is optional, or {@code false} otherwise
 	 * @return the parsed line
 	 */
-	private static @NotNull HeaderLine parseLine(@NotNull String line, boolean optional) {
+	private static HeaderLine parseLine(String line, boolean optional) {
 		List<RuleToken> tokens = new ArrayList<>();
 
 		int lastLandmark = 0;
@@ -377,7 +376,7 @@ public class HeaderRule {
 	 * @param start the index where the variable name starts
 	 * @return the variable name, or {@code null} if no variable could be parsed
 	 */
-	private static @Nullable String readVar(@NotNull String line, int start) {
+	private static @Nullable String readVar(String line, int start) {
 		int end = start;
 
 		for (int i = start; i < line.length(); i++) {

@@ -9,8 +9,7 @@
 package dev.yumi.gradle.licenser.api.rule.variable;
 
 import dev.yumi.gradle.licenser.api.rule.HeaderFileContext;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -30,7 +29,7 @@ public class FileNameVariableType implements VariableType<String> {
 	public static final FileNameVariableType INSTANCE = new FileNameVariableType();
 
 	@Override
-	public @NotNull Optional<ParseResult<String>> parseVar(@NotNull String input, int start) {
+	public Optional<ParseResult<String>> parseVar(String input, int start) {
 		int i;
 
 		for (i = start; i < input.length(); i++) {
@@ -49,12 +48,12 @@ public class FileNameVariableType implements VariableType<String> {
 	}
 
 	@Override
-	public @NotNull String getAsString(@NotNull String value) {
+	public String getAsString(String value) {
 		return value;
 	}
 
 	@Override
-	public @NotNull String getUpToDate(@NotNull HeaderFileContext context, @Nullable String old) {
+	public String getUpToDate(HeaderFileContext context, @Nullable String old) {
 		return context.fileName();
 	}
 }

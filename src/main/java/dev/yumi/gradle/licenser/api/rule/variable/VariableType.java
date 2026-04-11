@@ -10,8 +10,7 @@ package dev.yumi.gradle.licenser.api.rule.variable;
 
 import dev.yumi.gradle.licenser.api.rule.HeaderFileContext;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Optional;
@@ -59,7 +58,7 @@ public interface VariableType<D> {
 	 * @return the parsed data if successful, or {@linkplain Optional#empty() empty} otherwise
 	 */
 	@Contract(pure = true)
-	@NotNull Optional<ParseResult<D>> parseVar(@NotNull String input, int start);
+	Optional<ParseResult<D>> parseVar(String input, int start);
 
 	/**
 	 * Returns the string representation of the given value whose type is this variable type.
@@ -68,7 +67,7 @@ public interface VariableType<D> {
 	 * @return the string representation
 	 */
 	@Contract(pure = true)
-	@NotNull String getAsString(@NotNull D value);
+	String getAsString(D value);
 
 	/**
 	 * Returns the up-to-date value for this variable type given the file context and the old value.
@@ -77,7 +76,7 @@ public interface VariableType<D> {
 	 * @param old the previous known value for this variable type, or {@code null} if unknown
 	 * @return the up-to-date value for this variable type
 	 */
-	@NotNull D getUpToDate(@NotNull HeaderFileContext context, @Nullable D old);
+	D getUpToDate(HeaderFileContext context, @Nullable D old);
 
 	/**
 	 * Represents the result of a parsed variable.

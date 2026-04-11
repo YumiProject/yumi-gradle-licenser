@@ -10,8 +10,7 @@ package dev.yumi.gradle.licenser.api.rule.variable;
 
 import dev.yumi.gradle.licenser.api.rule.HeaderFileContext;
 import dev.yumi.gradle.licenser.util.Utils;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -35,7 +34,7 @@ public class YearListVariableType implements VariableType<int[]> {
 	public static final YearListVariableType INSTANCE = new YearListVariableType();
 
 	@Override
-	public @NotNull Optional<ParseResult<int[]>> parseVar(@NotNull String input, int start) {
+	public Optional<ParseResult<int[]>> parseVar(String input, int start) {
 		IntStream.Builder years = IntStream.builder();
 		boolean foundNext, foundOne = false;
 		int totalEnd = -1;
@@ -68,12 +67,12 @@ public class YearListVariableType implements VariableType<int[]> {
 	}
 
 	@Override
-	public @NotNull String getAsString(int @NotNull [] value) {
+	public String getAsString(int[] value) {
 		return Arrays.stream(value).mapToObj(String::valueOf).collect(Collectors.joining(", "));
 	}
 
 	@Override
-	public int @NotNull [] getUpToDate(@NotNull HeaderFileContext context, int @Nullable [] old) {
+	public int [] getUpToDate(HeaderFileContext context, int @Nullable [] old) {
 		int lastModified = context.lastModifiedYear();
 
 		if (old != null) {

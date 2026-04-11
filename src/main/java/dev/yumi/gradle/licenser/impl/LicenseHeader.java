@@ -13,8 +13,7 @@ import dev.yumi.gradle.licenser.api.rule.HeaderLine;
 import dev.yumi.gradle.licenser.api.rule.HeaderRule;
 import dev.yumi.gradle.licenser.api.rule.LicenseYearSelectionMode;
 import dev.yumi.gradle.licenser.api.rule.variable.VariableType;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.io.*;
 import java.nio.file.Path;
@@ -60,7 +59,7 @@ public final class LicenseHeader implements Serializable {
 	 * @param header the existing header
 	 * @return a list of validation errors if there's any
 	 */
-	public @NotNull List<ValidationError> validate(@NotNull List<String> header) {
+	public List<ValidationError> validate(List<String> header) {
 		var errors = new ArrayList<ValidationError>();
 
 		for (var rule : this.rules) {

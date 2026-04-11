@@ -10,8 +10,7 @@ package dev.yumi.gradle.licenser.api.rule.variable;
 
 import dev.yumi.gradle.licenser.api.rule.HeaderFileContext;
 import dev.yumi.gradle.licenser.util.Utils;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -32,7 +31,7 @@ public class CreationYearVariableType implements VariableType<Integer> {
 	public static final CreationYearVariableType INSTANCE = new CreationYearVariableType();
 
 	@Override
-	public @NotNull Optional<ParseResult<Integer>> parseVar(@NotNull String input, int start) {
+	public Optional<ParseResult<Integer>> parseVar(String input, int start) {
 		int numberEnd = Utils.findInteger(input, start);
 
 		if (numberEnd == -1) {
@@ -43,12 +42,12 @@ public class CreationYearVariableType implements VariableType<Integer> {
 	}
 
 	@Override
-	public @NotNull String getAsString(@NotNull Integer value) {
+	public String getAsString(Integer value) {
 		return value.toString();
 	}
 
 	@Override
-	public @NotNull Integer getUpToDate(@NotNull HeaderFileContext context, @Nullable Integer old) {
+	public Integer getUpToDate(HeaderFileContext context, @Nullable Integer old) {
 		if (old != null) {
 			return old;
 		} else {

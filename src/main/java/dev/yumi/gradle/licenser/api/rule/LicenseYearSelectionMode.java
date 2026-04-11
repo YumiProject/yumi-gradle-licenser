@@ -10,7 +10,7 @@ package dev.yumi.gradle.licenser.api.rule;
 
 import dev.yumi.gradle.licenser.util.GitUtils;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -56,7 +56,7 @@ public enum LicenseYearSelectionMode {
 	 * @return the creation year
 	 * @throws IOException if the file attributes cannot be read
 	 */
-	public int getCreationYear(@NotNull Path rootPath, int projectCreationYear, @NotNull Path path) throws IOException {
+	public int getCreationYear(Path rootPath, int projectCreationYear, Path path) throws IOException {
 		Path commitPath = this.commitPathReference.getPathForCommitFetching(rootPath, path);
 
 		if (commitPath != path) {
@@ -78,7 +78,7 @@ public enum LicenseYearSelectionMode {
 	 * @param path the path to the file
 	 * @return the last modification year
 	 */
-	public int getModificationYear(@NotNull Path rootPath, @NotNull Path path) {
+	public int getModificationYear(Path rootPath, Path path) {
 		Path commitPath = this.commitPathReference.getPathForCommitFetching(rootPath, path);
 		return GitUtils.getModificationYear(rootPath, commitPath);
 	}
@@ -89,7 +89,7 @@ public enum LicenseYearSelectionMode {
 	 * @param name the name of the mode
 	 */
 	@Contract(pure = true)
-	public static LicenseYearSelectionMode byName(@NotNull String name) {
+	public static @Nullable LicenseYearSelectionMode byName(String name) {
 		for (var mode : VALUES) {
 			if (mode.name().equals(name))
 				return mode;
@@ -107,6 +107,6 @@ public enum LicenseYearSelectionMode {
 		 * @param path the path
 		 * @return the path to use to get the latest commit
 		 */
-		@NotNull Path getPathForCommitFetching(Path rootPath, Path path);
+		Path getPathForCommitFetching(Path rootPath, Path path);
 	}
 }
