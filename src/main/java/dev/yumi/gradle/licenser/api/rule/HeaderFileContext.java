@@ -8,15 +8,29 @@
 
 package dev.yumi.gradle.licenser.api.rule;
 
+import org.jetbrains.annotations.Contract;
+
 /**
  * Represents the context of a file for which the license header is to be updated.
  *
- * @param fileName the name of the file to update
- * @param creationYear the creation year
- * @param lastModifiedYear the last modified year
  * @author LambdAurora
- * @version 1.0.0
+ * @version 4.0.0
  * @since 1.0.0
  */
-public record HeaderFileContext(String fileName, int creationYear, int lastModifiedYear) {
+public interface HeaderFileContext {
+	/**
+	 * {@return the name of the file to update}
+	 */
+	@Contract(pure = true)
+	String fileName();
+
+	/**
+	 * {@return the creation year}
+	 */
+	int creationYear();
+
+	/**
+	 * {@return the last modified year}
+	 */
+	int lastModifiedYear();
 }

@@ -8,11 +8,11 @@
 
 package dev.yumi.gradle.licenser.impl;
 
-import dev.yumi.gradle.licenser.api.rule.HeaderFileContext;
 import dev.yumi.gradle.licenser.api.rule.HeaderLine;
 import dev.yumi.gradle.licenser.api.rule.HeaderRule;
 import dev.yumi.gradle.licenser.api.rule.LicenseYearSelectionMode;
 import dev.yumi.gradle.licenser.api.rule.variable.VariableType;
+import dev.yumi.gradle.licenser.util.MemoizingIntSupplier;
 import org.jspecify.annotations.Nullable;
 
 import java.io.*;
@@ -131,14 +131,18 @@ public final class LicenseHeader implements Serializable {
 	private List<String> format(
 			Path rootPath, int projectCreationYear, Path path, HeaderRule rule, HeaderRule.ParsedData parsed
 	) {
-		try {
-			int creationYear = rule.getYearSelectionMode().getCreationYear(rootPath, projectCreationYear, path);
-			int lastModifiedYear = rule.getYearSelectionMode().getModificationYear(rootPath, path);
-			var context = new HeaderFileContext(path.getFileName().toString(), creationYear, lastModifiedYear);
-			return rule.apply(parsed, context);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+		var context = new HeaderFileContextImpl(
+				path.getFileName().toString(),
+				new MemoizingIntSupplier(() -> {
+					try {
+						return rule.getYearSelectionMode().getCreationYear(rootPath, projectCreationYear, path);
+					} catch (IOException e) {
+						throw new RuntimeException(e);
+					}
+				}),
+				new MemoizingIntSupplier(() -> rule.getYearSelectionMode().getModificationYear(rootPath, path))
+		);
+		return rule.apply(parsed, context);
 	}
 
 	@Serial
