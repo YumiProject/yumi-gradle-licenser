@@ -17,7 +17,7 @@ For a project you need to apply the plugin to your project:
 
 ```groovy
 plugins {
-	id "dev.yumi.gradle.licenser" version "3.0.+"
+	id "dev.yumi.gradle.licenser" version "4.0.+"
 }
 ```
 
