@@ -90,7 +90,7 @@ tasks.jar {
 
 license {
 	rule(file("codeformat/HEADER"))
-	exclude("scenarios/**")
+	exclude("scenarios/**", "HEADER")
 }
 
 signing {
