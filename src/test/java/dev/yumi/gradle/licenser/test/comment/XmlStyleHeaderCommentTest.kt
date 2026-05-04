@@ -47,6 +47,42 @@ class XmlStyleHeaderCommentTest {
 	}
 
 	@Test
+	fun `Parsing with existing indented header`() {
+		val result = XmlStyleHeaderComment.INSTANCE.readHeaderComment(
+			"""
+			<!--
+				Sample License Header
+
+					Indented part.
+
+				Yippee
+			-->
+			
+			<!doctype html>
+			<html>
+				<head>
+				</head>
+				<body>
+				</body>
+			</html
+		""".trimIndent()
+		)
+
+		assertEquals(0, result.start)
+		assertEquals(58, result.end)
+		assertEquals("\n", result.separator)
+
+		assertNotNull(result.existing)
+
+		assertEquals(5, result.existing?.size)
+		assertEquals("Sample License Header", result.existing?.first())
+		assertEquals("\tIndented part.", result.existing?.get(2))
+		assertEquals("Yippee", result.existing?.last())
+
+		assert(result.existing != null)
+	}
+
+	@Test
 	fun `Parsing with missing header`() {
 		val result = XmlStyleHeaderComment.INSTANCE.readHeaderComment(
 			"""
@@ -72,7 +108,7 @@ class XmlStyleHeaderCommentTest {
 		val expected = """
 			<!--
 				Sample License Header
-				
+
 				Yippee
 			-->
 		""".trimIndent()

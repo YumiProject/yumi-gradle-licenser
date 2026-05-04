@@ -68,5 +68,12 @@
 
 - Fixed `HeaderCommentManager#findHeaderComment` not properly matching extensions following a refactor.
 
+## 4.0.0
+
+- Fixed license year variables not being lazily computed ([#10](https://github.com/YumiProject/yumi-gradle-licenser/issues/10)).
+- Fixed `XmlStyleHeaderComment` strips all leading space from header template ([#11](https://github.com/YumiProject/yumi-gradle-licenser/issues/11)).
+- Fixed inconsistency between `CStyleHeaderComment` and `XmlStyleHeaderComment` finality ([#12](https://github.com/YumiProject/yumi-gradle-licenser/issues/12)).
+  - `HeaderComment` now also requires the `Serializable` contract.
+
 [#3]: https://github.com/YumiProject/yumi-gradle-licenser/pull/3
 [#9]: https://github.com/YumiProject/yumi-gradle-licenser/issues/9

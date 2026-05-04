@@ -15,10 +15,10 @@ private const val COMMENT_END = "-->"
  * [HeaderComment] implementation for XML-style comments.
  *
  * @author gdude2002
- * @version 2.1.1
+ * @version 4.0.0
  * @since 1.2.0
  */
-public open class XmlStyleHeaderComment protected constructor() : HeaderComment {
+public class XmlStyleHeaderComment private constructor() : HeaderComment {
 	override fun readHeaderComment(source: String): HeaderComment.Result {
 		val separator = this.extractLineSeparator(source)
 
@@ -51,7 +51,7 @@ public open class XmlStyleHeaderComment protected constructor() : HeaderComment 
 		result.removeLast()
 
 		// Remove any indents from the licence header text, and return the result.
-		return HeaderComment.Result(start, end, result.map { it.trimIndent() }, separator)
+		return HeaderComment.Result(start, end, result.map { it.removePrefix("\t") }, separator)
 	}
 
 	override fun writeHeaderComment(header: List<String>, separator: String): String =
@@ -59,7 +59,11 @@ public open class XmlStyleHeaderComment protected constructor() : HeaderComment 
 			append("$COMMENT_START$separator")
 
 			header.forEach {
-				append("\t$it$separator")
+				if (it.isEmpty()) {
+					append(separator)
+				} else {
+					append("\t$it$separator")
+				}
 			}
 
 			append(COMMENT_END)

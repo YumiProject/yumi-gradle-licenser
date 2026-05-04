@@ -11,16 +11,17 @@ package dev.yumi.gradle.licenser.api.comment;
 import org.jetbrains.annotations.Contract;
 import org.jspecify.annotations.Nullable;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * Represents the header comment reader and writer for a language.
  *
  * @author LambdAurora
- * @version 1.0.0
+ * @version 4.0.0
  * @since 1.0.0
  */
-public interface HeaderComment {
+public interface HeaderComment extends Serializable {
 	/**
 	 * Attempts to find the header comment and extract it from the given source.
 	 *
