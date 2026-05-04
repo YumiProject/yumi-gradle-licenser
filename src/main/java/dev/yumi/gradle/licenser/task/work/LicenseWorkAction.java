@@ -15,6 +15,7 @@ import dev.yumi.gradle.licenser.impl.LogConsumer;
 import org.gradle.api.GradleException;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.Property;
+import org.gradle.api.tasks.Input;
 import org.gradle.workers.WorkAction;
 import org.gradle.workers.WorkParameters;
 
@@ -30,7 +31,7 @@ import java.util.List;
  * Represents a work action related to licensing.
  *
  * @author LambdAurora
- * @version 2.2.0
+ * @version 4.0.0
  * @since 2.2.0
  */
 public abstract class LicenseWorkAction
@@ -53,6 +54,8 @@ public abstract class LicenseWorkAction
 			} catch (IOException e) {
 				throw new GradleException("Failed to load file " + sourcePath, e);
 			}
+		} else if (params.getFailOnMissingHeaderCommentHandler().get()) {
+			throw new GradleException("No header comment handler found for file " + sourcePath + ".");
 		}
 	}
 
@@ -149,6 +152,14 @@ public abstract class LicenseWorkAction
 		 * {@return the project's creation year property}
 		 */
 		Property<Integer> getProjectCreationYear();
+
+		/**
+		 * {@return {@code true} if the task should fail if it cannot find a header comment handler for a given file,
+		 * or {@code false} otherwise}
+		 *
+		 * @since 4.0.0
+		 */
+		Property<Boolean> getFailOnMissingHeaderCommentHandler();
 
 		RegularFileProperty getReportFile();
 

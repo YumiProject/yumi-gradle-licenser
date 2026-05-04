@@ -47,7 +47,7 @@ import java.util.Set;
  * Represents the Yumi Licenser Gradle extension to configure the plugin in buildscripts.
  *
  * @author LambdAurora
- * @version 3.0.0
+ * @version 4.0.0
  * @since 1.0.0
  */
 public abstract class YumiLicenserGradleExtension implements PatternFilterable {
@@ -77,6 +77,9 @@ public abstract class YumiLicenserGradleExtension implements PatternFilterable {
 
 	@PackageScope
 	final Property<Boolean> excludeBuildDirectory;
+
+	@PackageScope
+	final Property<Boolean> failOnMissingHeaderCommentHandler;
 
 	//endregion
 	//endregion
@@ -124,6 +127,8 @@ public abstract class YumiLicenserGradleExtension implements PatternFilterable {
 				"**/META-INF/services/**"
 		);
 		this.excludeBuildDirectory = objects.property(Boolean.class)
+				.convention(true);
+		this.failOnMissingHeaderCommentHandler = objects.property(Boolean.class)
 				.convention(true);
 	}
 
@@ -341,6 +346,17 @@ public abstract class YumiLicenserGradleExtension implements PatternFilterable {
 	@Contract(pure = true)
 	public Property<Boolean> getExcludeBuildDirectory() {
 		return this.excludeBuildDirectory;
+	}
+
+	/**
+	 * {@return the property which determines if tasks should fail for files
+	 * that don't have a register {@linkplain dev.yumi.gradle.licenser.api.comment.HeaderComment header comment handler}}
+	 *
+	 * @since 4.0.0
+	 */
+	@Contract(pure = true)
+	public Property<Boolean> getFailOnMissingHeaderCommentHandler() {
+		return this.failOnMissingHeaderCommentHandler;
 	}
 
 	/**

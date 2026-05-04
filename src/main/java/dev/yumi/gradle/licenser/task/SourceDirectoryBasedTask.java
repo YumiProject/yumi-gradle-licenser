@@ -29,7 +29,7 @@ import java.util.stream.Stream;
  * Represents a task that acts on a given source directory set.
  *
  * @author LambdAurora
- * @version 3.0.0
+ * @version 4.0.0
  * @since 1.0.0
  */
 @ApiStatus.Internal
@@ -42,6 +42,7 @@ public abstract class SourceDirectoryBasedTask extends DefaultTask {
 		this.getRootDirectory().convention(this.getProject().getRootDir().toString());
 		this.getProjectDirectory().convention(this.getProject().getProjectDir().toString());
 		this.getProjectCreationYear().convention(extension.getProjectCreationYear());
+		this.getFailOnMissingHeaderCommentHandler().convention(extension.getFailOnMissingHeaderCommentHandler());
 
 		var buildDir = this.getProject().getLayout().getBuildDirectory();
 
@@ -105,6 +106,15 @@ public abstract class SourceDirectoryBasedTask extends DefaultTask {
 	public abstract Property<Integer> getProjectCreationYear();
 
 	/**
+	 * {@return {@code true} if the task should fail if it cannot find a header comment handler for a given file,
+	 * or {@code false} otherwise}
+	 *
+	 * @since 4.0.0
+	 */
+	@Input
+	public abstract Property<Boolean> getFailOnMissingHeaderCommentHandler();
+
+	/**
 	 * {@return the build directory path property}
 	 */
 	@Input
@@ -120,7 +130,9 @@ public abstract class SourceDirectoryBasedTask extends DefaultTask {
 	 * @param sourceFiles the source files to treat in this task
 	 * @param consumer the action to execute on a given file
 	 */
-	void execute(HeaderCommentManager headerCommentManager, Stream<Path> sourceFiles, SourceConsumer consumer) {
+	void execute(
+			HeaderCommentManager headerCommentManager, Stream<Path> sourceFiles, SourceConsumer consumer
+	) {
 		Path rootDir = Path.of(this.getRootDirectory().get());
 		Path projectDir = Path.of(this.getProjectDirectory().get());
 		Path buildDir = Path.of(this.getBuildDirectory().get());
@@ -142,6 +154,8 @@ public abstract class SourceDirectoryBasedTask extends DefaultTask {
 				} catch (IOException e) {
 					throw new GradleException("Failed to load file " + sourcePath, e);
 				}
+			} else if (this.getFailOnMissingHeaderCommentHandler().get()) {
+				throw new GradleException("No header comment handler found for file " + sourcePath + ".");
 			}
 		});
 

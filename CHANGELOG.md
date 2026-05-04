@@ -70,6 +70,7 @@
 
 ## 4.0.0
 
+- Added by default failure of tasks if no header comment handlers are registered for an included file type ([#14](https://github.com/YumiProject/yumi-gradle-licenser/issues/14)).
 - Fixed license year variables not being lazily computed ([#10](https://github.com/YumiProject/yumi-gradle-licenser/issues/10)).
 - Fixed `XmlStyleHeaderComment` strips all leading space from header template ([#11](https://github.com/YumiProject/yumi-gradle-licenser/issues/11)).
 - Fixed inconsistency between `CStyleHeaderComment` and `XmlStyleHeaderComment` finality ([#12](https://github.com/YumiProject/yumi-gradle-licenser/issues/12)).

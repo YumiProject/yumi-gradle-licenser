@@ -80,6 +80,7 @@ public abstract class ApplyLicenseTask extends SourceDirectoryBasedTask {
 				params.getProjectDirectory().set(this.getProjectDirectory());
 				params.getBuildDirectory().set(this.getBuildDirectory());
 				params.getProjectCreationYear().set(this.getProjectCreationYear());
+				params.getFailOnMissingHeaderCommentHandler().set(this.getFailOnMissingHeaderCommentHandler());
 				params.getReportFile().set(reportPath.toFile());
 				params.getDebugMode().set(YumiLicenserGradlePlugin.DEBUG_MODE);
 			});
